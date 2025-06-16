@@ -87,7 +87,7 @@ if ($utilisateur) {
     <div class="logo">🛍️ MonCatalogue</div>
     <nav>
         <a href="categories.php">Catégories</a>
-
+        <a href="ajouter_article.php">➕ Ajouter</a>
         <a href="account.php">
             <?= $utilisateur ? 'Mon Compte' : 'Se connecter' ?>
         </a>
