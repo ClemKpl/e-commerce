@@ -28,9 +28,27 @@ if (isset($_GET['categorie'])) {
     // Récupération des articles sous forme de tableau associatif
     $articles = $stmt->fetchAll();
 }
+// On crée un tableau associatif id_article => [notes...]
+$notations = [];
+if (!empty($articles)) {
+    $ids = implode(',', array_column($articles, 'id_article'));
+    $stmt = $pdo->query("SELECT * FROM notation WHERE id_article IN ($ids)");
+    $allNotes = $stmt->fetchAll();
+
+    foreach ($allNotes as $note) {
+        $id = $note['id_article'];
+        if (!isset($notations[$id])) $notations[$id] = [];
+        $notations[$id][] = $note;
+    }
+}
+
 ?>
 
+<<<<<<< HEAD
 <!-- Style CSS intégré pour la page -->
+=======
+
+>>>>>>> 48d8a0f227dc2b77e55a63b99f6e814c67ef5117
 <style>
     h1, h2 {
         color: #2c3e50;
@@ -100,6 +118,7 @@ if (isset($_GET['categorie'])) {
     <!-- Sinon, affichage des articles -->
     <?php else: ?>
         <?php foreach ($articles as $article): ?>
+<<<<<<< HEAD
             <div class="article">
                 <!-- Nom de l'article -->
                 <strong><?= htmlspecialchars($article['produit']) ?></strong>
@@ -121,4 +140,87 @@ if (isset($_GET['categorie'])) {
 <?php endif; ?>
 
 <!-- Inclusion du footer -->
+=======
+    <div class="article">
+        <strong><?= htmlspecialchars($article['produit']) ?></strong>
+        <br>Prix : <?= number_format($article['prix'], 2, ',', ' ') ?> €
+        
+        <?php
+        $id = $article['id_article'];
+        if (isset($notations[$id])) {
+            $notes = array_column($notations[$id], 'note');
+            $moyenne = round(array_sum($notes) / count($notes), 1);
+            echo "<p>Note moyenne : <strong>$moyenne/5</strong></p>";
+
+            // Affiche les avis
+            echo "<ul style='margin: 0; padding-left: 20px;'>";
+            foreach ($notations[$id] as $n) {
+                echo "<li><em>« " . htmlspecialchars($n['avis']) . " »</em></li>";
+            }
+            echo "</ul>";
+        } else {
+            echo "<p>Aucune évaluation</p>";
+        }
+        ?>
+
+        <form class="add-to-cart-form" data-id="<?= $article['id_article'] ?>" style="margin-top: 10px;">
+            <button type="submit">Ajouter au panier 🛒</button>
+        </form>
+    </div>
+<?php endforeach; ?>
+
+    <?php endif; ?>
+<?php endif; ?>
+
+<script>
+document.querySelectorAll('.add-to-cart-form').forEach(form => {
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const id = this.dataset.id;
+        const button = this.querySelector('button');
+        const originalText = button.textContent;
+
+        // Désactive temporairement pour éviter les spams
+        button.disabled = true;
+        button.textContent = "✅ Ajouté";
+
+        fetch('add_to_cart.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'id_article=' + encodeURIComponent(id)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const panierLink = document.querySelector('a[href="panier.php"]');
+                if (panierLink) {
+                    panierLink.textContent = "Panier (" + data.total + ")";
+                }
+
+                // Revenir à l'état initial après 3 secondes
+                setTimeout(() => {
+                    button.disabled = false;
+                    button.textContent = originalText;
+                }, 3000);
+            } else {
+                button.textContent = "Erreur";
+                setTimeout(() => {
+                    button.disabled = false;
+                    button.textContent = originalText;
+                }, 3000);
+            }
+        })
+        .catch(() => {
+            button.textContent = "⚠️ Erreur réseau";
+            setTimeout(() => {
+                button.disabled = false;
+                button.textContent = originalText;
+            }, 1500);
+        });
+    });
+});
+</script>
+
+>>>>>>> 48d8a0f227dc2b77e55a63b99f6e814c67ef5117
 <?php require_once('footer.php'); ?>
