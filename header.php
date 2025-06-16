@@ -84,9 +84,9 @@ $utilisateur = $_SESSION['utilisateur'] ?? null;
         <a href="account.php">
     <?php
     if (isset($_SESSION['utilisateur'])) {
-        echo "Bonjour " . htmlspecialchars($_SESSION['utilisateur']['nom']);
-    } else {
         echo "Mon Compte";
+    } else {
+        echo "Se connecter";
     }
     ?>
 </a>
