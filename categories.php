@@ -83,7 +83,7 @@ if (isset($_GET['categorie'])) {
             <div class="article">
                 <strong><?= htmlspecialchars($article['produit']) ?></strong>
                 Prix : <?= number_format($article['prix'], 2, ',', ' ') ?> €
-                <form action="add_to_cart.php" method="post" style="margin-top: 10px;">
+                <form class="add-to-cart-form" data-id="<?= $article['id_article'] ?>" style="margin-top: 10px;">
                     <input type="hidden" name="id_article" value="<?= $article['id_article'] ?>">
                     <button type="submit">Ajouter au panier 🛒</button>
                 </form>
@@ -91,5 +91,39 @@ if (isset($_GET['categorie'])) {
         <?php endforeach; ?>
     <?php endif; ?>
 <?php endif; ?>
+
+<script>
+document.querySelectorAll('.add-to-cart-form').forEach(form => {
+    form.addEventListener('submit', function(e) {
+        e.preventDefault(); // Empêche le rechargement
+
+        const id = this.dataset.id;
+        const button = this.querySelector('button');
+
+        fetch('add_to_cart.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'id_article=' + encodeURIComponent(id)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                button.textContent = "✅ Ajouté";
+                // Mettre à jour le compteur panier dans le header
+                const panierLink = document.querySelector('a[href="panier.php"]');
+                if (panierLink) {
+                    panierLink.textContent = "Panier (" + data.total + ")";
+                }
+            } else {
+                button.textContent = "Erreur";
+            }
+        })
+        .catch(() => {
+            button.textContent = "⚠️ Erreur réseau";
+        });
+    });
+});
+</script>
+
 
 <?php require_once('footer.php'); ?>
