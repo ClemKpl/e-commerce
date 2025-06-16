@@ -1,36 +1,38 @@
 <?php
 session_start();
-
 header('Content-Type: application/json');
 
-// Vérifie que l’utilisateur est connecté
+// Vérifie si l'utilisateur est connecté
 if (!isset($_SESSION['utilisateur'])) {
     echo json_encode(['success' => false, 'message' => 'Utilisateur non connecté']);
     exit;
 }
 
-$id_client = $_SESSION['utilisateur']['id'];
+$idClient = $_SESSION['utilisateur']['id'];
 
 if (isset($_POST['id_article'])) {
-    $id_article = (int) $_POST['id_article'];
+    $idArticle = (int) $_POST['id_article'];
 
-    // Initialise la structure
-    if (!isset($_SESSION['panier'][$id_client])) {
-        $_SESSION['panier'][$id_client] = [];
+    // Initialise le panier du client si nécessaire
+    if (!isset($_SESSION['panier'][$idClient])) {
+        $_SESSION['panier'][$idClient] = [];
     }
 
     // Ajoute ou incrémente l'article
-    if (isset($_SESSION['panier'][$id_client][$id_article])) {
-        $_SESSION['panier'][$id_client][$id_article]++;
+    if (isset($_SESSION['panier'][$idClient][$idArticle])) {
+        $_SESSION['panier'][$idClient][$idArticle]++;
     } else {
-        $_SESSION['panier'][$id_client][$id_article] = 1;
+        $_SESSION['panier'][$idClient][$idArticle] = 1;
     }
 
-    // Compte total pour l'affichage dans le header
-    $total = array_sum($_SESSION['panier'][$id_client]);
+    // Compte le total pour ce client
+    $total = array_sum($_SESSION['panier'][$idClient]);
 
-    echo json_encode(['success' => true, 'total' => $total]);
+    echo json_encode([
+        'success' => true,
+        'total' => $total
+    ]);
     exit;
 }
 
-echo json_encode(['success' => false]);
+echo json_encode(['success' => false, 'message' => 'Requête invalide']);
