@@ -1,32 +1,31 @@
 <?php
 session_start();
+require_once('header.php');
 
-// Liste de comptes (à remplacer plus tard par une table utilisateurs)
-$utilisateurs = [
-    'colin@example.com' => [
-        'prenom' => 'Colin',
-        'mdp' => '1234'
-    ],
-    'jeanne@example.com' => [
-        'prenom' => 'Jeanne',
-        'mdp' => 'azerty'
-    ]
-];
+// Connexion à ta base
+$pdo = new PDO("mysql:host=10.96.16.82;dbname=magasin;charset=utf8", "colin", "");
 
 // Traitement du formulaire
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = $_POST['email'] ?? '';
     $mdp = $_POST['mdp'] ?? '';
 
-    if (isset($utilisateurs[$email]) && $utilisateurs[$email]['mdp'] === $mdp) {
+    // Préparation de la requête
+    $stmt = $pdo->prepare("SELECT * FROM clients WHERE email = :email");
+    $stmt->execute(['email' => $email]);
+    $utilisateur = $stmt->fetch();
+
+    // Vérifie que le mot de passe correspond au nom
+    if ($utilisateur && strtolower($utilisateur['nom']) === strtolower($mdp)) {
         $_SESSION['utilisateur'] = [
-            'email' => $email,
-            'prenom' => $utilisateurs[$email]['prenom']
+            'id' => $utilisateur['id_client'],
+            'nom' => $utilisateur['nom'],
+            'email' => $utilisateur['email']
         ];
         header("Location: account.php");
         exit;
     } else {
-        $erreur = "Email ou mot de passe incorrect.";
+        $erreur = "Identifiants incorrects.";
     }
 }
 
@@ -36,14 +35,12 @@ if (isset($_GET['logout'])) {
     header("Location: account.php");
     exit;
 }
-
-require_once('header.php');
 ?>
 
 <h1>🧍 Mon compte</h1>
 
 <?php if (isset($_SESSION['utilisateur'])): ?>
-    <p>Bienvenue, <strong><?= htmlspecialchars($_SESSION['utilisateur']['prenom']) ?></strong> !</p>
+    <p>Bienvenue, <strong><?= htmlspecialchars($_SESSION['utilisateur']['nom']) ?></strong> !</p>
     <p><a href="account.php?logout=1">🔓 Se déconnecter</a></p>
 
 <?php else: ?>
@@ -59,7 +56,7 @@ require_once('header.php');
         </label><br><br>
 
         <label>Mot de passe :<br>
-            <input type="password" name="mdp" required>
+            <input type="password" name="mdp" required placeholder="Tapez votre nom">
         </label><br><br>
 
         <button type="submit">Se connecter</button>
@@ -67,4 +64,3 @@ require_once('header.php');
 <?php endif; ?>
 
 <?php require_once('footer.php'); ?>
-
