@@ -2,6 +2,8 @@
 // Connexion PDO à la base de données
 $pdo = new PDO("mysql:host=10.96.16.82;dbname=magasin;charset=utf8", "colin", "");
 
+require_once('header.php');
+
 // Récupérer toutes les catégories
 $categories = $pdo->query("SELECT * FROM categories")->fetchAll();
 
