@@ -1,14 +1,20 @@
 <?php
-// Lancement de session pour suivre le panier et le compte
+// Lancement de session
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Compte les articles du panier
-$panierCount = isset($_SESSION['panier']) ? array_sum($_SESSION['panier']) : 0;
-
-// (Optionnel) Récupère le prénom si l'utilisateur est connecté
+// Utilisateur connecté ou non
 $utilisateur = $_SESSION['utilisateur'] ?? null;
+
+// Compter les articles du panier lié au compte uniquement
+$panierCount = 0;
+if ($utilisateur) {
+    $idClient = $utilisateur['id'];
+    if (isset($_SESSION['panier'][$idClient])) {
+        $panierCount = array_sum($_SESSION['panier'][$idClient]);
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -81,15 +87,11 @@ $utilisateur = $_SESSION['utilisateur'] ?? null;
     <div class="logo">🛍️ MonCatalogue</div>
     <nav>
         <a href="categories.php">Catégories</a>
+
         <a href="account.php">
-    <?php
-    if (isset($_SESSION['utilisateur'])) {
-        echo "Mon Compte";
-    } else {
-        echo "Se connecter";
-    }
-    ?>
-</a>
+            <?= $utilisateur ? 'Mon Compte' : 'Se connecter' ?>
+        </a>
+
         <a href="panier.php">Panier (<?= $panierCount ?>)</a>
     </nav>
 </header>
