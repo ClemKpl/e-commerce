@@ -95,10 +95,15 @@ if (isset($_GET['categorie'])) {
 <script>
 document.querySelectorAll('.add-to-cart-form').forEach(form => {
     form.addEventListener('submit', function(e) {
-        e.preventDefault(); // Empêche le rechargement
+        e.preventDefault();
 
         const id = this.dataset.id;
         const button = this.querySelector('button');
+        const originalText = button.textContent;
+
+        // Désactive temporairement pour éviter les spams
+        button.disabled = true;
+        button.textContent = "✅ Ajouté";
 
         fetch('add_to_cart.php', {
             method: 'POST',
@@ -108,22 +113,33 @@ document.querySelectorAll('.add-to-cart-form').forEach(form => {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                button.textContent = "✅ Ajouté";
-                // Mettre à jour le compteur panier dans le header
                 const panierLink = document.querySelector('a[href="panier.php"]');
                 if (panierLink) {
                     panierLink.textContent = "Panier (" + data.total + ")";
                 }
+
+                // Revenir à l'état initial après 3 secondes
+                setTimeout(() => {
+                    button.disabled = false;
+                    button.textContent = originalText;
+                }, 3000);
             } else {
                 button.textContent = "Erreur";
+                setTimeout(() => {
+                    button.disabled = false;
+                    button.textContent = originalText;
+                }, 3000);
             }
         })
         .catch(() => {
             button.textContent = "⚠️ Erreur réseau";
+            setTimeout(() => {
+                button.disabled = false;
+                button.textContent = originalText;
+            }, 1500);
         });
     });
 });
 </script>
-
 
 <?php require_once('footer.php'); ?>
