@@ -19,7 +19,22 @@ if (isset($_GET['categorie'])) {
     $stmt->execute(['id_categorie' => $categorieId]);
     $articles = $stmt->fetchAll();
 }
+// On crée un tableau associatif id_article => [notes...]
+$notations = [];
+if (!empty($articles)) {
+    $ids = implode(',', array_column($articles, 'id_article'));
+    $stmt = $pdo->query("SELECT * FROM notation WHERE id_article IN ($ids)");
+    $allNotes = $stmt->fetchAll();
+
+    foreach ($allNotes as $note) {
+        $id = $note['id_article'];
+        if (!isset($notations[$id])) $notations[$id] = [];
+        $notations[$id][] = $note;
+    }
+}
+
 ?>
+
 
 <style>
     h1, h2 {
@@ -80,15 +95,34 @@ if (isset($_GET['categorie'])) {
         <p>Aucun article dans cette catégorie.</p>
     <?php else: ?>
         <?php foreach ($articles as $article): ?>
-            <div class="article">
-                <strong><?= htmlspecialchars($article['produit']) ?></strong>
-                Prix : <?= number_format($article['prix'], 2, ',', ' ') ?> €
-                <form class="add-to-cart-form" data-id="<?= $article['id_article'] ?>" style="margin-top: 10px;">
-                    <input type="hidden" name="id_article" value="<?= $article['id_article'] ?>">
-                    <button type="submit">Ajouter au panier 🛒</button>
-                </form>
-            </div>
-        <?php endforeach; ?>
+    <div class="article">
+        <strong><?= htmlspecialchars($article['produit']) ?></strong>
+        <br>Prix : <?= number_format($article['prix'], 2, ',', ' ') ?> €
+        
+        <?php
+        $id = $article['id_article'];
+        if (isset($notations[$id])) {
+            $notes = array_column($notations[$id], 'note');
+            $moyenne = round(array_sum($notes) / count($notes), 1);
+            echo "<p>Note moyenne : <strong>$moyenne/5</strong></p>";
+
+            // Affiche les avis
+            echo "<ul style='margin: 0; padding-left: 20px;'>";
+            foreach ($notations[$id] as $n) {
+                echo "<li><em>« " . htmlspecialchars($n['avis']) . " »</em></li>";
+            }
+            echo "</ul>";
+        } else {
+            echo "<p>Aucune évaluation</p>";
+        }
+        ?>
+
+        <form class="add-to-cart-form" data-id="<?= $article['id_article'] ?>" style="margin-top: 10px;">
+            <button type="submit">Ajouter au panier 🛒</button>
+        </form>
+    </div>
+<?php endforeach; ?>
+
     <?php endif; ?>
 <?php endif; ?>
 
