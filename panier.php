@@ -15,10 +15,17 @@ if (isset($_GET['vider'])) {
     exit;
 }
 
-// Supprimer un article spécifique
-if (isset($_GET['supprimer'])) {
-    $id = (int) $_GET['supprimer'];
-    unset($_SESSION['panier'][$id]);
+if (isset($_GET['retirer'])) {
+    $id = (int) $_GET['retirer'];
+
+    if (isset($_SESSION['panier'][$id])) {
+        $_SESSION['panier'][$id]--;
+
+        if ($_SESSION['panier'][$id] <= 0) {
+            unset($_SESSION['panier'][$id]);
+        }
+    }
+
     header("Location: panier.php");
     exit;
 }
@@ -62,7 +69,8 @@ if (!empty($panier)) {
                 <td style="padding: 10px; border: 1px solid #ccc;"><?= $quantite ?></td>
                 <td style="padding: 10px; border: 1px solid #ccc;"><?= number_format($sousTotal, 2, ',', ' ') ?> €</td>
                 <td style="padding: 10px; border: 1px solid #ccc;">
-                    <a href="panier.php?supprimer=<?= $id ?>" onclick="return confirm('Supprimer ce produit ?')">❌ Supprimer</a>
+                    <a href="panier.php?retirer=<?= $id ?>">❌ Retirer 1</a>
+
                 </td>
             </tr>
             <?php endforeach; ?>
