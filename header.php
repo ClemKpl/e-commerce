@@ -80,9 +80,8 @@ $utilisateur = $_SESSION['utilisateur'] ?? null;
 <header>
     <div class="logo">🛍️ MonCatalogue</div>
     <nav>
-        <a href="index.php">Accueil</a>
         <a href="categories.php">Catégories</a>
-        <a href="compte.php"><?= $utilisateur ? "Bonjour " . htmlspecialchars($utilisateur['prenom']) : "Mon Compte" ?></a>
+        <a href="account.php"><?= $utilisateur ? "Bonjour " . htmlspecialchars($utilisateur['prenom']) : "Mon Compte" ?></a>
         <a href="panier.php">Panier (<?= $panierCount ?>)</a>
     </nav>
 </header>
