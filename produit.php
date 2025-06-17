@@ -1,89 +1,98 @@
 <?php
-session_start();
+// Connexion à la base
+$pdo = new PDO("mysql:host=10.96.16.82;dbname=magasin;charset=utf8", "colin", "");
+
+// Inclure le header
 require_once('header.php');
 
-// Connexion à la base
-$pdo = new PDO("mysql:host=localhost;dbname=magasin;charset=utf8", "root", "");
-
-// Vérifie si un ID d'article est fourni
-if (!isset($_GET['id'])) {
-    echo "<p>Article non spécifié.</p>";
+// Vérifie que l'id est dans l'URL
+if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
+    echo "<p>Produit non trouvé.</p>";
     require_once('footer.php');
     exit;
 }
 
-// Récupère l'article depuis la BDD
-$id_article = (int)$_GET['id'];
+$id = (int) $_GET['id'];
+
+// Récupère les infos du produit
 $stmt = $pdo->prepare("SELECT * FROM articles WHERE id_article = :id");
-$stmt->execute(['id' => $id_article]);
+$stmt->execute(['id' => $id]);
 $article = $stmt->fetch();
 
 if (!$article) {
-    echo "<p>Article introuvable.</p>";
+    echo "<p>Ce produit n'existe pas.</p>";
     require_once('footer.php');
     exit;
 }
+
+// Récupère les notations
+$stmt = $pdo->prepare("SELECT * FROM notation WHERE id_article = :id");
+$stmt->execute(['id' => $id]);
+$notations = $stmt->fetchAll();
 ?>
 
-<h1><?= htmlspecialchars($article['produit']) ?></h1>
-<p><strong>Prix :</strong> <?= number_format($article['prix'], 2, ',', ' ') ?> €</p>
-<p><strong>Description :</strong><br><?= nl2br(htmlspecialchars($article['description'])) ?></p>
+<style>
+    .produit {
+        max-width: 600px;
+        margin: 40px auto;
+        background: #f9f9f9;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .produit h1 {
+        font-size: 24px;
+        margin-bottom: 10px;
+        color: #2c3e50;
+    }
+    .produit p {
+        margin: 10px 0;
+    }
+    .avis {
+        background: #fff;
+        padding: 10px;
+        border-radius: 5px;
+        margin-top: 10px;
+    }
+</style>
 
-<!-- Formulaire pour ajouter au panier -->
-<form class="add-to-cart-form" data-id="<?= $article['id_article'] ?>">
-    <button type="submit">Ajouter au panier 🛒</button>
-</form>
+<div class="produit">
+    <h1><?= htmlspecialchars($article['produit']) ?></h1>
+    <p><strong>Prix :</strong> <?= number_format($article['prix'], 2, ',', ' ') ?> €</p>
 
-<script>
-document.querySelectorAll('.add-to-cart-form').forEach(form => {
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
+    <?php if (!empty($article['description'])): ?>
+        <p><strong>Description :</strong><br><?= nl2br(htmlspecialchars($article['description'])) ?></p>
+    <?php endif; ?>
 
-        const id = this.dataset.id;
-        const button = this.querySelector('button');
-        const originalText = button.textContent;
+    <?php if ($notations): ?>
+        <?php
+        $notes = array_column($notations, 'note');
+        $moyenne = round(array_sum($notes) / count($notes), 1);
+        ?>
+        <p><strong>Note moyenne :</strong> <?= $moyenne ?>/5</p>
 
-        button.disabled = true;
-        button.textContent = "✅ Ajouté";
+        <div class="avis">
+            <strong>Avis :</strong>
+            <ul>
+                <?php foreach ($notations as $note): ?>
+                    <li><em>« <?= htmlspecialchars($note['avis']) ?> »</em></li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+    <?php else: ?>
+        <p>Aucune évaluation pour ce produit.</p>
+    <?php endif; ?>
 
-        fetch('add_to_cart.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: 'id_article=' + encodeURIComponent(id)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                const panierLink = document.querySelector('a[href="panier.php"]');
-                if (panierLink) {
-                    panierLink.textContent = "Panier (" + data.total + ")";
-                }
+    <!-- Formulaire pour ajouter au panier -->
+    <form method="post" action="add_to_cart.php" style="margin-top: 20px;">
+        <input type="hidden" name="id_article" value="<?= $article['id_article'] ?>">
+        <button type="submit">Ajouter au panier 🛒</button>
+    </form>
 
-                setTimeout(() => {
-                    button.disabled = false;
-                    button.textContent = originalText;
-                }, 3000);
-            } else {
-                if (data.message === "Utilisateur non connecté") {
-                    window.location.href = "account.php"; // 🔒 Redirection si pas connecté
-                } else {
-                    button.textContent = "Erreur";
-                    setTimeout(() => {
-                        button.disabled = false;
-                        button.textContent = originalText;
-                    }, 3000);
-                }
-            }
-        })
-        .catch(() => {
-            button.textContent = "⚠️ Erreur réseau";
-            setTimeout(() => {
-                button.disabled = false;
-                button.textContent = originalText;
-            }, 1500);
-        });
-    });
-});
-</script>
+    <!-- Lien retour -->
+    <p style="margin-top: 20px;">
+        <a href="categories.php?categorie=<?= $article['id_categorie'] ?>">← Retour à la catégorie</a>
+    </p>
+</div>
 
 <?php require_once('footer.php'); ?>
