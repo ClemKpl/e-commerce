@@ -1,10 +1,6 @@
 <?php
 session_start();
-
-// Connexion à la base
 $pdo = new PDO("mysql:host=10.96.16.82;dbname=magasin;charset=utf8", "colin", "");
-
-// Inclure le header
 require_once('header.php');
 
 // Vérifie que l'id est dans l'URL
@@ -56,17 +52,6 @@ $notations = $stmt->fetchAll();
         border-radius: 5px;
         margin-top: 10px;
     }
-    .btn {
-        background-color: #3498db;
-        color: white;
-        padding: 10px 20px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-    }
-    .btn:hover {
-        background-color: #2980b9;
-    }
 </style>
 
 <div class="produit">
@@ -96,24 +81,71 @@ $notations = $stmt->fetchAll();
         <p>Aucune évaluation pour ce produit.</p>
     <?php endif; ?>
 
-    <!-- Formulaire pour ajouter au panier -->
     <?php if (isset($_SESSION['utilisateur'])): ?>
-        <form method="post" action="add_to_cart.php" style="margin-top: 20px;">
-            <input type="hidden" name="id_article" value="<?= $article['id_article'] ?>">
-            <button class="btn" type="submit">Ajouter au panier 🛒</button>
+        <!-- Formulaire pour ajouter au panier -->
+        <form class="add-to-cart-form" data-id="<?= $article['id_article'] ?>" style="margin-top: 20px;">
+            <button type="submit">Ajouter au panier 🛒</button>
         </form>
     <?php else: ?>
         <p style="margin-top: 20px;">
-            <a href="account.php?redirect=<?= urlencode($_SERVER['REQUEST_URI']) ?>" class="btn">
-                Se connecter pour ajouter au panier
+            <a href="account.php?redirect=<?= urlencode($_SERVER['REQUEST_URI']) ?>">
+                Se connecter pour ajouter au panier 🔐
             </a>
         </p>
     <?php endif; ?>
 
-    <!-- Lien retour -->
     <p style="margin-top: 20px;">
         <a href="categories.php?categorie=<?= $article['id_categorie'] ?>">← Retour à la catégorie</a>
     </p>
 </div>
+
+<!-- Script AJAX pour ajouter au panier -->
+<script>
+document.querySelectorAll('.add-to-cart-form').forEach(form => {
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const id = this.dataset.id;
+        const button = this.querySelector('button');
+        const originalText = button.textContent;
+
+        button.disabled = true;
+        button.textContent = "✅ Ajouté";
+
+        fetch('add_to_cart.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'id_article=' + encodeURIComponent(id)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const panierLink = document.querySelector('a[href="panier.php"]');
+                if (panierLink) {
+                    panierLink.textContent = "Panier (" + data.total + ")";
+                }
+
+                setTimeout(() => {
+                    button.disabled = false;
+                    button.textContent = originalText;
+                }, 3000);
+            } else {
+                button.textContent = "Erreur";
+                setTimeout(() => {
+                    button.disabled = false;
+                    button.textContent = originalText;
+                }, 3000);
+            }
+        })
+        .catch(() => {
+            button.textContent = "⚠️ Erreur réseau";
+            setTimeout(() => {
+                button.disabled = false;
+                button.textContent = originalText;
+            }, 1500);
+        });
+    });
+});
+</script>
 
 <?php require_once('footer.php'); ?>
