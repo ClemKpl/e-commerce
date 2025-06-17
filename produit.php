@@ -1,52 +1,89 @@
 <?php
 session_start();
+require_once('header.php');
+
+// Connexion à la base
 $pdo = new PDO("mysql:host=localhost;dbname=magasin;charset=utf8", "root", "");
 
-// Vérifie qu'on a bien un ID dans l'URL
+// Vérifie si un ID d'article est fourni
 if (!isset($_GET['id'])) {
-    die("ID de produit manquant.");
+    echo "<p>Article non spécifié.</p>";
+    require_once('footer.php');
+    exit;
 }
 
-$id = (int) $_GET['id'];
-
-// Récupère les infos de l'article
-$stmt = $pdo->prepare("SELECT * FROM articles WHERE id_article = ?");
-$stmt->execute([$id]);
+// Récupère l'article depuis la BDD
+$id_article = (int)$_GET['id'];
+$stmt = $pdo->prepare("SELECT * FROM articles WHERE id_article = :id");
+$stmt->execute(['id' => $id_article]);
 $article = $stmt->fetch();
 
 if (!$article) {
-    die("Article non trouvé.");
+    echo "<p>Article introuvable.</p>";
+    require_once('footer.php');
+    exit;
 }
-
-// Récupère les notations liées à cet article
-$stmt = $pdo->prepare("SELECT * FROM notation WHERE id_article = ?");
-$stmt->execute([$id]);
-$notations = $stmt->fetchAll();
 ?>
-<!DOCTYPE html>
-<html>
-<head><title><?= htmlspecialchars($article['produit']) ?></title></head>
-<body>
-    <h1><?= htmlspecialchars($article['produit']) ?></h1>
-    <p>Prix : <?= number_format($article['prix'], 2, ',', ' ') ?> €</p>
 
-    <?php if (count($notations) > 0): ?>
-        <h3>Notes :</h3>
-        <ul>
-            <?php 
-            $total = 0;
-            foreach ($notations as $note):
-                $total += $note['note'];
-            ?>
-                <li>
-                    Note : <?= $note['note'] ?>/5
-                    <br><em><?= htmlspecialchars($note['avis']) ?></em>
-                </li>
-            <?php endforeach; ?>
-        </ul>
-        <p><strong>Moyenne :</strong> <?= round($total / count($notations), 1) ?>/5</p>
-    <?php else: ?>
-        <p>Aucune notation.</p>
-    <?php endif; ?>
-</body>
-</html>
+<h1><?= htmlspecialchars($article['produit']) ?></h1>
+<p><strong>Prix :</strong> <?= number_format($article['prix'], 2, ',', ' ') ?> €</p>
+<p><strong>Description :</strong><br><?= nl2br(htmlspecialchars($article['description'])) ?></p>
+
+<!-- Formulaire pour ajouter au panier -->
+<form class="add-to-cart-form" data-id="<?= $article['id_article'] ?>">
+    <button type="submit">Ajouter au panier 🛒</button>
+</form>
+
+<script>
+document.querySelectorAll('.add-to-cart-form').forEach(form => {
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const id = this.dataset.id;
+        const button = this.querySelector('button');
+        const originalText = button.textContent;
+
+        button.disabled = true;
+        button.textContent = "✅ Ajouté";
+
+        fetch('add_to_cart.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'id_article=' + encodeURIComponent(id)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const panierLink = document.querySelector('a[href="panier.php"]');
+                if (panierLink) {
+                    panierLink.textContent = "Panier (" + data.total + ")";
+                }
+
+                setTimeout(() => {
+                    button.disabled = false;
+                    button.textContent = originalText;
+                }, 3000);
+            } else {
+                if (data.message === "Utilisateur non connecté") {
+                    window.location.href = "account.php"; // 🔒 Redirection si pas connecté
+                } else {
+                    button.textContent = "Erreur";
+                    setTimeout(() => {
+                        button.disabled = false;
+                        button.textContent = originalText;
+                    }, 3000);
+                }
+            }
+        })
+        .catch(() => {
+            button.textContent = "⚠️ Erreur réseau";
+            setTimeout(() => {
+                button.disabled = false;
+                button.textContent = originalText;
+            }, 1500);
+        });
+    });
+});
+</script>
+
+<?php require_once('footer.php'); ?>
