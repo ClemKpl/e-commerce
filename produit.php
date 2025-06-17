@@ -27,7 +27,7 @@ if (!$article) {
 
 <h1><?= htmlspecialchars($article['produit']) ?></h1>
 <p><strong>Prix :</strong> <?= number_format($article['prix'], 2, ',', ' ') ?> €</p>
-<p><strong>Description :</strong><br><?= nl2br(htmlspecialchars($article['description'])) ?></p>
+<p><strong>Notation :</strong><br><?= nl2br(htmlspecialchars($article['notation'])) ?></p>
 
 <!-- Formulaire pour ajouter au panier -->
 <form class="add-to-cart-form" data-id="<?= $article['id_article'] ?>">
