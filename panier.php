@@ -5,26 +5,6 @@ session_start();
 // Inclut l'en-tête de la page (navigation, logo, etc.)
 require_once('header.php');
 
-<<<<<<< HEAD
-// Connexion à la base de données via PDO
-$pdo = new PDO("mysql:host=10.96.16.82;dbname=magasin;charset=utf8", "colin", "");
-
-// Récupération du panier depuis la session ou tableau vide si non défini
-$panier = $_SESSION['panier'] ?? [];
-
-// Si l'utilisateur clique sur "vider le panier"
-if (isset($_GET['vider'])) {
-    unset($_SESSION['panier']); // Supprime tout le panier
-    header("Location: panier.php"); // Recharge la page
-    exit; // Arrête le script
-}
-
-// Si l'utilisateur veut supprimer un article spécifique
-if (isset($_GET['supprimer'])) {
-    $id = (int) $_GET['supprimer']; // Récupère l'ID de l'article
-    unset($_SESSION['panier'][$id]); // Supprime l'article du panier
-    header("Location: panier.php"); // Recharge la page
-=======
 $pdo = new PDO("mysql:host=10.96.16.82;dbname=magasin;charset=utf8", "colin", "");
 
 // Vérifie que l'utilisateur est connecté
@@ -56,7 +36,6 @@ if (isset($_GET['retirer'])) {
 if (isset($_GET['vider'])) {
     unset($_SESSION['panier'][$idClient]);
     header("Location: panier.php");
->>>>>>> 48d8a0f227dc2b77e55a63b99f6e814c67ef5117
     exit;
 }
 
@@ -81,11 +60,6 @@ if (!empty($panier)) {
     <!-- Message si le panier est vide -->
     <p>Votre panier est vide.</p>
 <?php else: ?>
-<<<<<<< HEAD
-
-    <!-- Tableau affichant les articles du panier -->
-=======
->>>>>>> 48d8a0f227dc2b77e55a63b99f6e814c67ef5117
     <table style="width:100%; border-collapse: collapse; margin-bottom: 30px;">
         <thead>
             <tr style="background-color: #ecf0f1;">
@@ -97,33 +71,6 @@ if (!empty($panier)) {
             </tr>
         </thead>
         <tbody>
-<<<<<<< HEAD
-            <?php foreach ($articles as $article):
-                $id = $article['id_article']; // ID de l'article
-                $quantite = $panier[$id]; // Quantité dans le panier
-                $sousTotal = $article['prix'] * $quantite; // Prix total pour cet article
-                $total += $sousTotal; // Ajoute au total général
-            ?>
-            <tr>
-                <td style="padding: 10px; border: 1px solid #ccc;">
-                    <?= htmlspecialchars($article['produit']) ?>
-                </td>
-                <td style="padding: 10px; border: 1px solid #ccc;">
-                    <?= number_format($article['prix'], 2, ',', ' ') ?> €
-                </td>
-                <td style="padding: 10px; border: 1px solid #ccc;">
-                    <?= $quantite ?>
-                </td>
-                <td style="padding: 10px; border: 1px solid #ccc;">
-                    <?= number_format($sousTotal, 2, ',', ' ') ?> €
-                </td>
-                <td style="padding: 10px; border: 1px solid #ccc;">
-                    <!-- Lien pour supprimer cet article du panier -->
-                    <a href="panier.php?supprimer=<?= $id ?>" onclick="return confirm('Supprimer ce produit ?')">
-                        ❌ Supprimer
-                    </a>
-                </td>
-=======
             <?php foreach ($articles as $article): 
                 $id = $article['id_article'];
                 $quantite = $panier[$id];
@@ -136,22 +83,14 @@ if (!empty($panier)) {
                 <td><?= $quantite ?></td>
                 <td><?= number_format($sousTotal, 2, ',', ' ') ?> €</td>
                 <td><a href="panier.php?retirer=<?= $id ?>">❌ Retirer 1</a></td>
->>>>>>> 48d8a0f227dc2b77e55a63b99f6e814c67ef5117
             </tr>
             <?php endforeach; ?>
         </tbody>
         <tfoot>
             <!-- Ligne du total général du panier -->
             <tr style="background-color: #f8f9fa;">
-<<<<<<< HEAD
-                <th colspan="3" style="padding: 10px; border: 1px solid #ccc;">Total général</th>
-                <th colspan="2" style="padding: 10px; border: 1px solid #ccc;">
-                    <?= number_format($total, 2, ',', ' ') ?> €
-                </th>
-=======
                 <th colspan="3">Total</th>
                 <th colspan="2"><?= number_format($total, 2, ',', ' ') ?> €</th>
->>>>>>> 48d8a0f227dc2b77e55a63b99f6e814c67ef5117
             </tr>
         </tfoot>
     </table>

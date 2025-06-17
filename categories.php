@@ -44,11 +44,6 @@ if (!empty($articles)) {
 
 ?>
 
-<<<<<<< HEAD
-<!-- Style CSS intégré pour la page -->
-=======
-
->>>>>>> 48d8a0f227dc2b77e55a63b99f6e814c67ef5117
 <style>
     h1, h2 {
         color: #2c3e50;
@@ -118,29 +113,6 @@ if (!empty($articles)) {
     <!-- Sinon, affichage des articles -->
     <?php else: ?>
         <?php foreach ($articles as $article): ?>
-<<<<<<< HEAD
-            <div class="article">
-                <!-- Nom de l'article -->
-                <strong><?= htmlspecialchars($article['produit']) ?></strong>
-
-                <!-- Prix de l'article formaté en euro -->
-                Prix : <?= number_format($article['prix'], 2, ',', ' ') ?> €
-
-                <!-- Formulaire pour ajouter l'article au panier -->
-                <form action="add_to_cart.php" method="post" style="margin-top: 10px;">
-                    <!-- Champ caché avec l'ID de l'article -->
-                    <input type="hidden" name="id_article" value="<?= $article['id_article'] ?>">
-                    
-                    <!-- Bouton pour ajouter au panier -->
-                    <button type="submit">Ajouter au panier 🛒</button>
-                </form>
-            </div>
-        <?php endforeach; ?>
-    <?php endif; ?>
-<?php endif; ?>
-
-<!-- Inclusion du footer -->
-=======
     <div class="article">
         <strong><?= htmlspecialchars($article['produit']) ?></strong>
         <br>Prix : <?= number_format($article['prix'], 2, ',', ' ') ?> €
@@ -222,5 +194,4 @@ document.querySelectorAll('.add-to-cart-form').forEach(form => {
 });
 </script>
 
->>>>>>> 48d8a0f227dc2b77e55a63b99f6e814c67ef5117
 <?php require_once('footer.php'); ?>
