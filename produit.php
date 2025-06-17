@@ -1,4 +1,6 @@
 <?php
+session_start();
+
 // Connexion à la base
 $pdo = new PDO("mysql:host=10.96.16.82;dbname=magasin;charset=utf8", "colin", "");
 
@@ -54,6 +56,17 @@ $notations = $stmt->fetchAll();
         border-radius: 5px;
         margin-top: 10px;
     }
+    .btn {
+        background-color: #3498db;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    .btn:hover {
+        background-color: #2980b9;
+    }
 </style>
 
 <div class="produit">
@@ -84,10 +97,18 @@ $notations = $stmt->fetchAll();
     <?php endif; ?>
 
     <!-- Formulaire pour ajouter au panier -->
-    <form method="post" action="add_to_cart.php" style="margin-top: 20px;">
-        <input type="hidden" name="id_article" value="<?= $article['id_article'] ?>">
-        <button type="submit">Ajouter au panier 🛒</button>
-    </form>
+    <?php if (isset($_SESSION['utilisateur'])): ?>
+        <form method="post" action="add_to_cart.php" style="margin-top: 20px;">
+            <input type="hidden" name="id_article" value="<?= $article['id_article'] ?>">
+            <button class="btn" type="submit">Ajouter au panier 🛒</button>
+        </form>
+    <?php else: ?>
+        <p style="margin-top: 20px;">
+            <a href="account.php?redirect=<?= urlencode($_SERVER['REQUEST_URI']) ?>" class="btn">
+                Se connecter pour ajouter au panier
+            </a>
+        </p>
+    <?php endif; ?>
 
     <!-- Lien retour -->
     <p style="margin-top: 20px;">
