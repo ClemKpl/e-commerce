@@ -3,7 +3,7 @@ session_start();
 require_once('header.php');
 
 // Connexion à la base
-$pdo = new PDO("mysql:host=localhost;dbname=magasin;charset=utf8", "root", "");
+$pdo = new PDO("mysql:host=10.96.16.82;dbname=magasin;charset=utf8", "colin", "");
 
 // Vérifie si un ID d'article est fourni
 if (!isset($_GET['id'])) {
