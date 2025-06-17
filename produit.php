@@ -1,36 +1,98 @@
 <?php
-// Connexion à la base de données
-$pdo = new PDO("mysql:host=localhost;dbname=ecommerce", "root", "");
+// Connexion à la base
+$pdo = new PDO("mysql:host=10.96.16.82;dbname=magasin;charset=utf8", "colin", "");
 
-// Vérifie si un ID de produit est passé dans l'URL
+// Inclure le header
+require_once('header.php');
+
+// Vérifie que l'id est dans l'URL
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
-    echo "Produit non trouvé.";
+    echo "<p>Produit non trouvé.</p>";
+    require_once('footer.php');
     exit;
 }
 
-$id = $_GET['id'];
+$id = (int) $_GET['id'];
 
-// Récupère les infos du produit dans la BDD
-$stmt = $pdo->prepare("SELECT * FROM produits WHERE id = ?");
-$stmt->execute([$id]);
-$produit = $stmt->fetch();
+// Récupère les infos du produit
+$stmt = $pdo->prepare("SELECT * FROM articles WHERE id_article = :id");
+$stmt->execute(['id' => $id]);
+$article = $stmt->fetch();
 
-if (!$produit) {
-    echo "Produit introuvable.";
+if (!$article) {
+    echo "<p>Ce produit n'existe pas.</p>";
+    require_once('footer.php');
     exit;
 }
+
+// Récupère les notations
+$stmt = $pdo->prepare("SELECT * FROM notation WHERE id_article = :id");
+$stmt->execute(['id' => $id]);
+$notations = $stmt->fetchAll();
 ?>
 
-<h1><?php echo htmlspecialchars($produit['nom']); ?></h1>
+<style>
+    .produit {
+        max-width: 600px;
+        margin: 40px auto;
+        background: #f9f9f9;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .produit h1 {
+        font-size: 24px;
+        margin-bottom: 10px;
+        color: #2c3e50;
+    }
+    .produit p {
+        margin: 10px 0;
+    }
+    .avis {
+        background: #fff;
+        padding: 10px;
+        border-radius: 5px;
+        margin-top: 10px;
+    }
+</style>
 
-<?php if (!empty($produit['image'])): ?>
-    <img src="<?php echo htmlspecialchars($produit['image']); ?>" alt="Image du produit" width="300">
-<?php endif; ?>
+<div class="produit">
+    <h1><?= htmlspecialchars($article['produit']) ?></h1>
+    <p><strong>Prix :</strong> <?= number_format($article['prix'], 2, ',', ' ') ?> €</p>
 
-<p>Description : <?php echo nl2br(htmlspecialchars($produit['description'])); ?></p>
-<p>Prix : <?php echo htmlspecialchars($produit['prix']); ?> €</p>
+    <?php if (!empty($article['description'])): ?>
+        <p><strong>Description :</strong><br><?= nl2br(htmlspecialchars($article['description'])) ?></p>
+    <?php endif; ?>
 
-<form action="ajouter_panier.php" method="post">
-    <input type="hidden" name="produit_id" value="<?php echo $produit['id']; ?>">
-    <button type="submit">Ajouter au panier</button>
-</form>
+    <?php if ($notations): ?>
+        <?php
+        $notes = array_column($notations, 'note');
+        $moyenne = round(array_sum($notes) / count($notes), 1);
+        ?>
+        <p><strong>Note moyenne :</strong> <?= $moyenne ?>/5</p>
+
+        <div class="avis">
+            <strong>Avis :</strong>
+            <ul>
+                <?php foreach ($notations as $note): ?>
+                    <li><em>« <?= htmlspecialchars($note['avis']) ?> »</em></li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+    <?php else: ?>
+        <p>Aucune évaluation pour ce produit.</p>
+    <?php endif; ?>
+
+    <!-- Formulaire pour ajouter au panier -->
+    <form method="post" action="add_to_cart.php" style="margin-top: 20px;">
+        <input type="hidden" name="id_article" value="<?= $article['id_article'] ?>">
+        <button type="submit">Ajouter au panier 🛒</button>
+    </form>
+
+    <!-- Lien retour -->
+    <p style="margin-top: 20px;">
+        <a href="categories.php?categorie=<?= $article['id_categorie'] ?>">← Retour à la catégorie</a>
+    </p>
+</div>
+
+<?php require_once('footer.php'); ?>
