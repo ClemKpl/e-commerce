@@ -1,23 +1,32 @@
 <?php
 session_start();
-
 header('Content-Type: application/json');
 
+// Vérifie si l'utilisateur est connecté
+if (!isset($_SESSION['utilisateur'])) {
+    echo json_encode(['success' => false, 'message' => 'Utilisateur non connecté']);
+    exit;
+}
+
+$idClient = $_SESSION['utilisateur']['id'];
+
 if (isset($_POST['id_article'])) {
-    $id = (int) $_POST['id_article'];
+    $idArticle = (int) $_POST['id_article'];
 
-    if (!isset($_SESSION['panier'])) {
-        $_SESSION['panier'] = [];
+    // Initialise le panier du client si nécessaire
+    if (!isset($_SESSION['panier'][$idClient])) {
+        $_SESSION['panier'][$idClient] = [];
     }
 
-    if (isset($_SESSION['panier'][$id])) {
-        $_SESSION['panier'][$id]++;
+    // Ajoute ou incrémente l'article
+    if (isset($_SESSION['panier'][$idClient][$idArticle])) {
+        $_SESSION['panier'][$idClient][$idArticle]++;
     } else {
-        $_SESSION['panier'][$id] = 1;
+        $_SESSION['panier'][$idClient][$idArticle] = 1;
     }
 
-    // Compteur total du panier
-    $total = array_sum($_SESSION['panier']);
+    // Compte le total pour ce client
+    $total = array_sum($_SESSION['panier'][$idClient]);
 
     echo json_encode([
         'success' => true,
@@ -26,4 +35,4 @@ if (isset($_POST['id_article'])) {
     exit;
 }
 
-echo json_encode(['success' => false]);
+echo json_encode(['success' => false, 'message' => 'Requête invalide']);

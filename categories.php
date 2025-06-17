@@ -1,24 +1,47 @@
 <?php
-// Connexion PDO à la base de données
+// Connexion à la base de données via PDO
 $pdo = new PDO("mysql:host=10.96.16.82;dbname=magasin;charset=utf8", "colin", "");
 
+// Inclusion du header (structure HTML, menu, etc.)
 require_once('header.php');
 
-// Récupérer toutes les catégories
+// Récupération de toutes les catégories dans la base de données
 $categories = $pdo->query("SELECT * FROM categories")->fetchAll();
 
-// Si une catégorie est sélectionnée, récupérer ses articles
+// Initialisation du tableau des articles
 $articles = [];
+
+// Si l'URL contient un paramètre 'categorie'
 if (isset($_GET['categorie'])) {
+    // On convertit l'identifiant de la catégorie en entier (sécurité)
     $categorieId = (int) $_GET['categorie'];
     
+    // Préparation de la requête pour récupérer les articles liés à cette catégorie
     $stmt = $pdo->prepare("
         SELECT * FROM articles 
         WHERE id_categorie = :id_categorie
     ");
+    
+    // Exécution de la requête avec liaison de paramètre
     $stmt->execute(['id_categorie' => $categorieId]);
+
+    // Récupération des articles sous forme de tableau associatif
     $articles = $stmt->fetchAll();
 }
+// On crée un tableau associatif id_article => [notes...]
+$notations = [];
+if (!empty($articles)) {
+    $ids = implode(',', array_column($articles, 'id_article'));
+    $stmt = $pdo->query("SELECT * FROM notation WHERE id_article IN ($ids)");
+    $allNotes = $stmt->fetchAll();
+
+    foreach ($allNotes as $note) {
+        $id = $note['id_article'];
+        if (!isset($notations[$id])) $notations[$id] = [];
+        $notations[$id][] = $note;
+    }
+}
+
 ?>
 
 <style>
@@ -63,32 +86,61 @@ if (isset($_GET['categorie'])) {
     }
 </style>
 
+<!-- Titre principal -->
 <h1>Catégories</h1>
+
+<!-- Liste des catégories sous forme de boutons -->
 <div class="categories">
     <?php foreach ($categories as $cat): ?>
+        <!-- Lien vers la même page avec l'ID de la catégorie en paramètre GET -->
         <a href="?categorie=<?= $cat['id_categorie'] ?>">
             <?= htmlspecialchars($cat['nom']) ?>
         </a>
     <?php endforeach; ?>
 </div>
 
+<!-- Si une catégorie a été sélectionnée -->
 <?php if (isset($_GET['categorie'])): ?>
     <h2>Articles de la catégorie : 
+        <!-- Affiche le nom de la catégorie actuelle -->
         <?= htmlspecialchars($categories[array_search($categorieId, array_column($categories, 'id_categorie'))]['nom']) ?>
     </h2>
+
+    <!-- Si aucun article dans cette catégorie -->
     <?php if (count($articles) === 0): ?>
         <p>Aucun article dans cette catégorie.</p>
+
+    <!-- Sinon, affichage des articles -->
     <?php else: ?>
         <?php foreach ($articles as $article): ?>
-            <div class="article">
-                <strong><?= htmlspecialchars($article['produit']) ?></strong>
-                Prix : <?= number_format($article['prix'], 2, ',', ' ') ?> €
-                <form class="add-to-cart-form" data-id="<?= $article['id_article'] ?>" style="margin-top: 10px;">
-                    <input type="hidden" name="id_article" value="<?= $article['id_article'] ?>">
-                    <button type="submit">Ajouter au panier 🛒</button>
-                </form>
-            </div>
-        <?php endforeach; ?>
+    <div class="article">
+        <strong><?= htmlspecialchars($article['produit']) ?></strong>
+        <br>Prix : <?= number_format($article['prix'], 2, ',', ' ') ?> €
+        
+        <?php
+        $id = $article['id_article'];
+        if (isset($notations[$id])) {
+            $notes = array_column($notations[$id], 'note');
+            $moyenne = round(array_sum($notes) / count($notes), 1);
+            echo "<p>Note moyenne : <strong>$moyenne/5</strong></p>";
+
+            // Affiche les avis
+            echo "<ul style='margin: 0; padding-left: 20px;'>";
+            foreach ($notations[$id] as $n) {
+                echo "<li><em>« " . htmlspecialchars($n['avis']) . " »</em></li>";
+            }
+            echo "</ul>";
+        } else {
+            echo "<p>Aucune évaluation</p>";
+        }
+        ?>
+
+        <form class="add-to-cart-form" data-id="<?= $article['id_article'] ?>" style="margin-top: 10px;">
+            <button type="submit">Ajouter au panier 🛒</button>
+        </form>
+    </div>
+<?php endforeach; ?>
+
     <?php endif; ?>
 <?php endif; ?>
 
