@@ -112,7 +112,7 @@ if (isset($_GET['logout'])) {
                 <span style="color: #e9bcd3;">(admin)</span>
             <?php endif; ?>
         </p>
-        <p><a href="account.php?logout=1">🔓 Se déconnecter</a></p>
+        <p><a href="account.php?logout=1">Se déconnecter</a></p>
 
         <div class="commandes">
             <h3>📦 Mes commandes</h3>
