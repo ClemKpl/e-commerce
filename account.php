@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             'id' => $utilisateur['id_client'],
             'nom' => $utilisateur['nom'],
             'email' => $utilisateur['email'],
-            'admin' => $utilisateur['Admin'] ?? 0  // ✅ Ajout du champ admin
+            'admin' => $utilisateur['admin'] ?? 0  // ✅ Ajout du champ admin
         ];
         header("Location: account.php");
         exit;
@@ -164,7 +164,7 @@ if (isset($_GET['logout'])) {
     <?php if (isset($_SESSION['utilisateur'])): ?>
         <p>Bienvenue, <strong><?= htmlspecialchars($_SESSION['utilisateur']['nom']) ?></strong>
             <?php if (!empty($_SESSION['utilisateur']['admin'])): ?>
-                <span style="color: #b10000;">(Admin)</span>
+                <span style="color: #b10000;">(admin)</span>
             <?php endif; ?>
         </p>
         <p><a href="account.php?logout=1">🔓 Se déconnecter</a></p>
