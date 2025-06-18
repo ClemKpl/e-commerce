@@ -127,7 +127,7 @@ if (isset($_GET['logout'])) {
 
                     // Récupération des articles liés
                     $stmtArt = $pdo->prepare("
-                        SELECT a.nom, a.prix 
+                        SELECT a.produit, a.prix 
                         FROM articles_commandes ac
                         JOIN articles a ON ac.id_article = a.id_article
                         WHERE ac.id_commande = :id_commande
@@ -149,7 +149,7 @@ if (isset($_GET['logout'])) {
                                 <?php if ($articles): ?>
                                     <?php foreach ($articles as $article): ?>
                                         <div class="article-item">
-                                            🛍️ <?= htmlspecialchars($article['nom']) ?> — <?= number_format($article['prix'], 2) ?> €
+                                            🛍️ <?= htmlspecialchars($article['produit']) ?> — <?= number_format($article['prix'], 2) ?> €
                                         </div>
                                     <?php endforeach; ?>
                                 <?php else: ?>
