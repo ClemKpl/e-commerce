@@ -1,13 +1,10 @@
 <?php
-// Lancement de session
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Utilisateur connecté ou non
 $utilisateur = $_SESSION['utilisateur'] ?? null;
 
-// Compter les articles du panier lié au compte uniquement
 $panierCount = 0;
 if ($utilisateur) {
     $idClient = $utilisateur['id'];
@@ -25,52 +22,49 @@ if ($utilisateur) {
     <style>
         body {
             margin: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #111;
-            color: #fff;
+            background-color: #f9f9f9;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            color: #333;
         }
 
         header {
-            background: linear-gradient(90deg, #000 0%, #550055 100%);
-            padding: 20px 30px;
+            background-color: #ffffff;
+            padding: 16px 24px;
+            border-bottom: 1px solid #e5e5e5;
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            box-shadow: 0 4px 12px rgba(255, 20, 147, 0.3);
         }
 
         .logo {
-            font-size: 1.8em;
-            font-weight: 700;
-            color: #ff4ecb;
-            text-shadow: 0 0 5px #ff4ecb;
+            font-size: 1.5em;
+            font-weight: 600;
+            color: #d38cad;
         }
 
         nav {
             display: flex;
-            gap: 15px;
+            gap: 12px;
             flex-wrap: wrap;
         }
 
         nav a {
-            color: #fff;
             text-decoration: none;
-            font-weight: 600;
-            background-color: #ff4ecb;
-            padding: 10px 16px;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            box-shadow: 0 0 8px rgba(255, 20, 147, 0.5);
+            color: #555;
+            background-color: #f3d1e0;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
         }
 
         nav a:hover {
-            background-color: #ff0099;
-            box-shadow: 0 0 12px rgba(255, 0, 153, 0.7);
+            background-color: #e9bcd3;
         }
 
         .container {
-            padding: 30px;
+            padding: 24px;
             max-width: 1200px;
             margin: auto;
         }
@@ -79,13 +73,12 @@ if ($utilisateur) {
             header {
                 flex-direction: column;
                 align-items: flex-start;
+                gap: 12px;
             }
 
             nav {
                 width: 100%;
-                margin-top: 10px;
                 flex-direction: column;
-                gap: 10px;
             }
         }
     </style>
