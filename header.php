@@ -26,8 +26,11 @@ if ($utilisateur) {
             display: flex;
             flex-direction: column;
             font-family: system-ui, sans-serif;
-            background-color: #f9f9f9;
             color: #333;
+            background-color: #fdf6f9;
+            background-image: url('https://www.transparenttextures.com/patterns/flowers.png');
+            background-repeat: repeat;
+            background-size: 250px;
         }
 
         .page-wrapper {
@@ -37,13 +40,14 @@ if ($utilisateur) {
         }
 
         header {
-            background-color: #ffffff;
+            background-color: rgba(255, 255, 255, 0.95);
             padding: 16px 24px;
             border-bottom: 1px solid #e5e5e5;
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
+            backdrop-filter: blur(3px);
         }
 
         .logo {
@@ -106,3 +110,5 @@ if ($utilisateur) {
         </nav>
     </header>
     <div class="container">
+
+
