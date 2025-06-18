@@ -6,7 +6,7 @@ require_once('header.php');
 $pdo = new PDO("mysql:host=10.96.16.82;dbname=magasin;charset=utf8", "colin", "");
 
 // Traitement de la connexion
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'login') {
     $email = $_POST['email'] ?? '';
     $mdp = $_POST['mdp'] ?? '';
 
@@ -24,6 +24,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     } else {
         $erreur = "Identifiants incorrects.";
+    }
+}
+
+// Traitement de l'inscription
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'register') {
+    $nom = trim($_POST['nom'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+
+    if ($nom && $email) {
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM clients WHERE email = :email");
+        $stmt->execute(['email' => $email]);
+        if ($stmt->fetchColumn() > 0) {
+            $erreurInscription = "Cet email est déjà utilisé.";
+        } else {
+            $stmt = $pdo->prepare("INSERT INTO clients (nom, email) VALUES (:nom, :email)");
+            $stmt->execute([
+                'nom' => $nom,
+                'email' => $email
+            ]);
+            $successInscription = "Compte créé avec succès ! Connectez-vous.";
+        }
+    } else {
+        $erreurInscription = "Veuillez remplir tous les champs.";
     }
 }
 
@@ -65,10 +88,12 @@ if (isset($_GET['logout'])) {
         display: flex;
         flex-direction: column;
         gap: 15px;
+        margin-bottom: 30px;
     }
 
     .account-container input[type="email"],
-    .account-container input[type="password"] {
+    .account-container input[type="password"],
+    .account-container input[type="text"] {
         padding: 10px;
         border: 1px solid #ccc;
         border-radius: 6px;
@@ -96,6 +121,11 @@ if (isset($_GET['logout'])) {
         color: red;
         font-weight: 500;
     }
+
+    .success-message {
+        color: green;
+        font-weight: 500;
+    }
 </style>
 
 <div class="account-container">
@@ -106,6 +136,7 @@ if (isset($_GET['logout'])) {
         <p><a href="account.php?logout=1">🔓 Se déconnecter</a></p>
 
     <?php else: ?>
+
         <h2>Connexion</h2>
 
         <?php if (isset($erreur)): ?>
@@ -113,6 +144,8 @@ if (isset($_GET['logout'])) {
         <?php endif; ?>
 
         <form method="post">
+            <input type="hidden" name="action" value="login">
+
             <label>
                 Email :
                 <input type="email" name="email" required>
@@ -125,6 +158,31 @@ if (isset($_GET['logout'])) {
 
             <button type="submit">Se connecter</button>
         </form>
+
+        <h2>Créer un compte</h2>
+
+        <?php if (isset($erreurInscription)): ?>
+            <p class="error-message"><?= $erreurInscription ?></p>
+        <?php elseif (isset($successInscription)): ?>
+            <p class="success-message"><?= $successInscription ?></p>
+        <?php endif; ?>
+
+        <form method="post">
+            <input type="hidden" name="action" value="register">
+
+            <label>
+                Nom :
+                <input type="text" name="nom" required>
+            </label>
+
+            <label>
+                Email :
+                <input type="email" name="email" required>
+            </label>
+
+            <button type="submit">Créer mon compte</button>
+        </form>
+
     <?php endif; ?>
 </div>
 
