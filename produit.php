@@ -1,13 +1,10 @@
 <?php
-session_start(); // Démarre la session pour vérifier si l'utilisateur est connecté
+session_start(); // Nécessaire pour vérifier la connexion
 
-// Connexion à la base de données via PDO
 $pdo = new PDO("mysql:host=10.96.16.82;dbname=magasin;charset=utf8", "colin", "");
 
-// Inclusion du header
 require_once('header.php');
 
-// Récupération de toutes les catégories
 $categories = $pdo->query("SELECT * FROM categories")->fetchAll();
 
 $articles = [];
@@ -20,7 +17,7 @@ if (isset($_GET['categorie'])) {
     $articles = $stmt->fetchAll();
 }
 
-// Récupération des notations
+// Notations
 $notations = [];
 if (!empty($articles)) {
     $ids = implode(',', array_column($articles, 'id_article'));
@@ -116,10 +113,12 @@ if (!empty($articles)) {
                 ?>
 
                 <?php if (isset($_SESSION['utilisateur'])): ?>
+                    <!-- Si connecté : afficher le bouton -->
                     <form class="add-to-cart-form" data-id="<?= $article['id_article'] ?>" style="margin-top: 10px;">
                         <button type="submit">Ajouter au panier 🛒</button>
                     </form>
                 <?php else: ?>
+                    <!-- Sinon : lien de redirection -->
                     <p style="margin-top: 10px;">
                         <a href="account.php?redirect=<?= urlencode($_SERVER['REQUEST_URI']) ?>">
                             Se connecter pour ajouter au panier 🔐
@@ -131,7 +130,8 @@ if (!empty($articles)) {
     <?php endif; ?>
 <?php endif; ?>
 
-<!-- Script pour ajouter au panier en AJAX -->
+<!-- Script AJAX uniquement si connecté -->
+<?php if (isset($_SESSION['utilisateur'])): ?>
 <script>
 document.querySelectorAll('.add-to-cart-form').forEach(form => {
     form.addEventListener('submit', function(e) {
@@ -179,5 +179,6 @@ document.querySelectorAll('.add-to-cart-form').forEach(form => {
     });
 });
 </script>
+<?php endif; ?>
 
 <?php require_once('footer.php'); ?>
