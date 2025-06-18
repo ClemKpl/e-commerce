@@ -223,7 +223,7 @@ if (isset($_SESSION['utilisateur'])) {
                 <?php foreach ($commandes as $commande): ?>
                     <tr>
                         <td><?= htmlspecialchars($commande['id_commande']) ?></td>
-                        <td><?= date('d/m/Y à H:i', strtotime($commande['date_commande'])) ?></td>
+                        <td><?= date('d/m/Y à H:i', strtotime($commande['date'])) ?></td>
                         <td><?= htmlspecialchars($commande['statut_livraison']) ?></td>
                     </tr>
                 <?php endforeach; ?>
