@@ -57,6 +57,7 @@ if ($utilisateur) {
             font-size: 1.5em;
             font-weight: 600;
             color: #d38cad;
+            text-decoration: none;
         }
 
         nav {
@@ -104,7 +105,7 @@ if ($utilisateur) {
 
 <div class="page-wrapper">
     <header>
-        <div class="logo">💗AchatsFastoches</div>
+        <a href="index.php" class="logo">💗AchatsFastoches</a>
         <nav>
             <a href="index.php">Accueil</a>
             <a href="account.php"><?= $utilisateur ? 'Mon Compte' : 'Se connecter' ?></a>
