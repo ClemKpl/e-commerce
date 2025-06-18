@@ -95,15 +95,16 @@ if ($utilisateur) {
 <header>
     <div class="logo">🛍️ MonCatalogue</div>
     <nav>
-        <!-- Lien vers les catégories -->
-        <a href="categories.php">Catégories</a>
-        <a href="ajouter_article.php">➕ Ajouter</a>
-        <a href="account.php">
-            <?= $utilisateur ? 'Mon Compte' : 'Se connecter' ?>
-        </a>
+    <!-- Déplacer Se connecter / Mon compte avant Catégories -->
+    <a href="account.php">
+        <?= $utilisateur ? 'Mon Compte' : 'Se connecter' ?>
+    </a>
 
-        <a href="panier.php">Panier (<?= $panierCount ?>)</a>
-    </nav>
+    <a href="categories.php">Catégories</a>
+    <a href="ajouter_article.php">➕ Ajouter</a>
+    <a href="panier.php">Panier (<?= $panierCount ?>)</a>
+</nav>
+
 </header>
 
 <!-- Contenu principal de la page -->
