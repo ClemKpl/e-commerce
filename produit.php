@@ -27,6 +27,34 @@ if (!$article) {
 $stmt = $pdo->prepare("SELECT * FROM notation WHERE id_article = :id");
 $stmt->execute(['id' => $id]);
 $notations = $stmt->fetchAll();
+
+// Traitement du formulaire de notation
+$confirmation_avis = null;
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['note'], $_POST['avis']) && isset($_SESSION['utilisateur'])) {
+    $note = (int) $_POST['note'];
+    $avis = trim($_POST['avis']);
+    $id_client = $_SESSION['utilisateur']['id'];
+
+    if ($note >= 1 && $note <= 5 && $avis !== '') {
+        $stmt = $pdo->prepare("
+            INSERT INTO notation (id_article, id_client, note, avis)
+            VALUES (:id_article, :id_client, :note, :avis)
+        ");
+        $stmt->execute([
+            'id_article' => $id,
+            'id_client' => $id_client,
+            'note' => $note,
+            'avis' => $avis
+        ]);
+        $confirmation_avis = "✅ Merci pour votre évaluation !";
+        // Recharge les notations après insertion
+        $stmt = $pdo->prepare("SELECT * FROM notation WHERE id_article = :id");
+        $stmt->execute(['id' => $id]);
+        $notations = $stmt->fetchAll();
+    } else {
+        $confirmation_avis = "❌ Veuillez remplir correctement tous les champs.";
+    }
+}
 ?>
 
 <style>
@@ -130,6 +158,39 @@ $notations = $stmt->fetchAll();
                 Se connecter pour ajouter au panier 🔐
             </a>
         </p>
+    <?php endif; ?>
+
+    <?php if (isset($_SESSION['utilisateur'])): ?>
+        <div style="margin-top: 30px;">
+            <h3 style="font-size:1.2em;color:#444;">📝 Laisser un avis</h3>
+
+            <?php if ($confirmation_avis): ?>
+                <p style="background:#f3d1e0;padding:10px;border-radius:6px;margin-top:10px;">
+                    <?= htmlspecialchars($confirmation_avis) ?>
+                </p>
+            <?php endif; ?>
+
+            <form method="post" style="display: flex; flex-direction: column; gap: 12px; max-width: 400px; margin-top: 16px;">
+                <label>
+                    Note :
+                    <select name="note" required style="padding:10px;border:1px solid #ccc;border-radius:6px;">
+                        <option value="">-- Choisir --</option>
+                        <?php for ($i = 1; $i <= 5; $i++): ?>
+                            <option value="<?= $i ?>"><?= $i ?>/5</option>
+                        <?php endfor; ?>
+                    </select>
+                </label>
+
+                <label>
+                    Avis :
+                    <textarea name="avis" rows="4" required style="padding:10px;border:1px solid #ccc;border-radius:6px;"></textarea>
+                </label>
+
+                <button type="submit" style="background:#e9bcd3;padding:10px 16px;border-radius:6px;border:none;cursor:pointer;font-weight:500;">
+                    Envoyer l'avis ✉️
+                </button>
+            </form>
+        </div>
     <?php endif; ?>
 
     <p style="margin-top: 30px;">
