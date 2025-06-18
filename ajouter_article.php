@@ -4,7 +4,7 @@ require_once('header.php');
 
 $pdo = new PDO("mysql:host=10.96.16.82;dbname=magasin;charset=utf8", "colin", "");
 
-// Récupération des catégories et fournisseurs pour le menu déroulant
+// Récupération des catégories et fournisseurs
 $categories = $pdo->query("SELECT * FROM categories")->fetchAll();
 $fournisseurs = $pdo->query("SELECT * FROM fournisseurs")->fetchAll();
 
@@ -36,40 +36,115 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
-<h1>➕ Ajouter un nouvel article</h1>
+<style>
+    .form-container {
+        max-width: 600px;
+        margin: 40px auto;
+        background-color: #ffffff;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+    }
 
-<?php if ($confirmation): ?>
-    <p><strong><?= $confirmation ?></strong></p>
-<?php endif; ?>
+    .form-container h1 {
+        margin-top: 0;
+        font-size: 1.8em;
+        color: #222;
+    }
 
-<form method="post" style="max-width: 400px;">
-    <label>Nom du produit :<br>
-        <input type="text" name="produit" required>
-    </label><br><br>
+    .form-container form {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+    }
 
-    <label>Prix (€) :<br>
-        <input type="number" name="prix" step="0.01" min="0" required>
-    </label><br><br>
+    .form-container label {
+        font-weight: 500;
+        color: #444;
+    }
 
-    <label>Catégorie :<br>
-        <select name="id_categorie" required>
-            <option value="">-- Choisir une catégorie --</option>
-            <?php foreach ($categories as $cat): ?>
-                <option value="<?= $cat['id_categorie'] ?>"><?= htmlspecialchars($cat['nom']) ?></option>
-            <?php endforeach; ?>
-        </select>
-    </label><br><br>
+    .form-container input,
+    .form-container select {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 1em;
+        width: 100%;
+    }
 
-    <label>Fournisseur (optionnel) :<br>
-        <select name="id_fournisseur">
-            <option value="">-- Aucun fournisseur --</option>
-            <?php foreach ($fournisseurs as $f): ?>
-                <option value="<?= $f['id_fournisseur'] ?>"><?= htmlspecialchars($f['nom']) ?></option>
-            <?php endforeach; ?>
-        </select>
-    </label><br><br>
+    .form-container button {
+        background-color: #e9bcd3;
+        border: none;
+        padding: 10px 16px;
+        border-radius: 6px;
+        color: #333;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+        width: fit-content;
+    }
 
-    <button type="submit">Ajouter l'article</button>
-</form>
+    .form-container button:hover {
+        background-color: #d7a8c2;
+    }
+
+    .confirmation-message {
+        font-weight: 500;
+        margin-bottom: 20px;
+        padding: 12px;
+        border-radius: 6px;
+        background-color: #f3d1e0;
+        color: #333;
+    }
+
+    .confirmation-message.error {
+        background-color: #ffe1e1;
+        color: #a00;
+    }
+</style>
+
+<div class="form-container">
+    <h1>➕ Ajouter un nouvel article</h1>
+
+    <?php if ($confirmation): ?>
+        <div class="confirmation-message <?= str_starts_with($confirmation, '❌') ? 'error' : '' ?>">
+            <?= $confirmation ?>
+        </div>
+    <?php endif; ?>
+
+    <form method="post">
+        <label>
+            Nom du produit :
+            <input type="text" name="produit" required>
+        </label>
+
+        <label>
+            Prix (€) :
+            <input type="number" name="prix" step="0.01" min="0" required>
+        </label>
+
+        <label>
+            Catégorie :
+            <select name="id_categorie" required>
+                <option value="">-- Choisir une catégorie --</option>
+                <?php foreach ($categories as $cat): ?>
+                    <option value="<?= $cat['id_categorie'] ?>"><?= htmlspecialchars($cat['nom']) ?></option>
+                <?php endforeach; ?>
+            </select>
+        </label>
+
+        <label>
+            Fournisseur (optionnel) :
+            <select name="id_fournisseur">
+                <option value="">-- Aucun fournisseur --</option>
+                <?php foreach ($fournisseurs as $f): ?>
+                    <option value="<?= $f['id_fournisseur'] ?>"><?= htmlspecialchars($f['nom']) ?></option>
+                <?php endforeach; ?>
+            </select>
+        </label>
+
+        <button type="submit">Ajouter l'article</button>
+    </form>
+</div>
 
 <?php require_once('footer.php'); ?>
