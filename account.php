@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             'id' => $utilisateur['id_client'],
             'nom' => $utilisateur['nom'],
             'email' => $utilisateur['email'],
-            'admin' => $utilisateur['admin'] ?? 0  // ✅ Ajout du champ admin
+            'admin' => $utilisateur['Admin'] ?? 0  // ✅ Ajout du champ admin
         ];
         header("Location: account.php");
         exit;
