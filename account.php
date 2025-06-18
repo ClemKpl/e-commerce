@@ -53,6 +53,7 @@ if (isset($_GET['logout'])) {
 ?>
 
 <style>
+
     .account-container {
         max-width: 700px;
         margin: 40px auto;
@@ -61,6 +62,17 @@ if (isset($_GET['logout'])) {
         border-radius: 12px;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
     }
+    .commandes td:nth-child(1) {
+        width: 20%;
+    }
+    .commandes td:nth-child(2) {
+        width: 40%;
+    }
+    .commandes td:nth-child(3) {
+        width: 40%;
+        text-align: right;
+    }
+
 
     .commandes table {
         width: 100%;
