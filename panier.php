@@ -33,6 +33,17 @@ if (isset($_GET['retirer'])) {
     exit;
 }
 
+// Gérer les ajouts
+if (isset($_GET['ajouter'])) {
+    $id = (int) $_GET['ajouter'];
+    if (isset($panier[$id])) {
+        $panier[$id]++;
+        $_SESSION['panier'][$idClient] = $panier;
+    }
+    header("Location: panier.php");
+    exit;
+}
+
 if (isset($_GET['vider'])) {
     unset($_SESSION['panier'][$idClient]);
     header("Location: panier.php");
@@ -80,7 +91,11 @@ if (!empty($panier)) {
             <tr>
                 <td><?= htmlspecialchars($article['produit']) ?></td>
                 <td><?= number_format($article['prix'], 2, ',', ' ') ?> €</td>
-                <td><?= $quantite ?></td>
+                <td>
+                    <a href="panier.php?retirer=<?= $id ?>" style="margin-right:5px;">➖</a>
+                    <?= $quantite ?>
+                    <a href="panier.php?ajouter=<?= $id ?>" style="margin-left:5px;">➕</a>
+                </td>
                 <td><?= number_format($sousTotal, 2, ',', ' ') ?> €</td>
                 <td><a href="panier.php?retirer=<?= $id ?>">❌ Retirer 1</a></td>
             </tr>
