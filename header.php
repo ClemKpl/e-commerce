@@ -1,21 +1,10 @@
 <?php
-<<<<<<< HEAD
-// Lancement de session uniquement si aucune session n’est active
-=======
 // Lancement de session
->>>>>>> 48d8a0f227dc2b77e55a63b99f6e814c67ef5117
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-<<<<<<< HEAD
-// On calcule le nombre total d’articles dans le panier (en additionnant les quantités)
-$panierCount = isset($_SESSION['panier']) ? array_sum($_SESSION['panier']) : 0;
-
-// On récupère les informations de l’utilisateur si connecté, sinon $utilisateur sera null
-=======
 // Utilisateur connecté ou non
->>>>>>> 48d8a0f227dc2b77e55a63b99f6e814c67ef5117
 $utilisateur = $_SESSION['utilisateur'] ?? null;
 
 // Compter les articles du panier lié au compte uniquement
@@ -108,21 +97,11 @@ if ($utilisateur) {
     <nav>
         <!-- Lien vers les catégories -->
         <a href="categories.php">Catégories</a>
-<<<<<<< HEAD
-
-        <!-- Si l’utilisateur est connecté, on affiche son prénom, sinon “Mon Compte” -->
-        <a href="account.php">
-            <?= $utilisateur ? "Bonjour " . htmlspecialchars($utilisateur['prenom']) : "Mon Compte" ?>
-        </a>
-
-        <!-- Affichage du nombre d’articles dans le panier -->
-=======
         <a href="ajouter_article.php">➕ Ajouter</a>
         <a href="account.php">
             <?= $utilisateur ? 'Mon Compte' : 'Se connecter' ?>
         </a>
 
->>>>>>> 48d8a0f227dc2b77e55a63b99f6e814c67ef5117
         <a href="panier.php">Panier (<?= $panierCount ?>)</a>
     </nav>
 </header>
