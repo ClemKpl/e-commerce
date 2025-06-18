@@ -1,13 +1,16 @@
-<?php
+<?php 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
 $utilisateur = $_SESSION['utilisateur'] ?? null;
 $panierCount = 0;
+$admin = false;
 
 if ($utilisateur) {
     $idClient = $utilisateur['id'];
+    $admin = isset($utilisateur['admin']) && $utilisateur['admin'] == 1;
+
     if (isset($_SESSION['panier'][$idClient])) {
         $panierCount = array_sum($_SESSION['panier'][$idClient]);
     }
@@ -106,10 +109,10 @@ if ($utilisateur) {
             <a href="index.php">Accueil</a>
             <a href="account.php"><?= $utilisateur ? 'Mon Compte' : 'Se connecter' ?></a>
             <a href="categories.php">Catégories</a>
-            <a href="ajouter_article.php">➕ Ajouter</a>
+            <?php if ($admin): ?>
+                <a href="ajouter_article.php">➕ Ajouter</a>
+            <?php endif; ?>
             <a href="panier.php">Panier (<?= $panierCount ?>)</a>
         </nav>
     </header>
     <div class="container">
-
-
