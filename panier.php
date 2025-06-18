@@ -5,7 +5,6 @@ session_start();
 // Inclut l'en-tête de la page (navigation, logo, etc.)
 require_once('header.php');
 
-<<<<<<< HEAD
 // Connexion à la base de données via PDO
 $pdo = new PDO("mysql:host=10.96.16.82;dbname=magasin;charset=utf8", "colin", "");
 
@@ -24,39 +23,6 @@ if (isset($_GET['supprimer'])) {
     $id = (int) $_GET['supprimer']; // Récupère l'ID de l'article
     unset($_SESSION['panier'][$id]); // Supprime l'article du panier
     header("Location: panier.php"); // Recharge la page
-=======
-$pdo = new PDO("mysql:host=10.96.16.82;dbname=magasin;charset=utf8", "colin", "");
-
-// Vérifie que l'utilisateur est connecté
-if (!isset($_SESSION['utilisateur'])) {
-    echo "<p>Veuillez vous connecter pour accéder à votre panier.</p>";
-    require_once('footer.php');
-    exit;
-}
-
-$idClient = $_SESSION['utilisateur']['id'];
-
-// Récupère le panier du client
-$panier = $_SESSION['panier'][$idClient] ?? [];
-
-// Gérer les suppressions
-if (isset($_GET['retirer'])) {
-    $id = (int) $_GET['retirer'];
-    if (isset($panier[$id])) {
-        $panier[$id]--;
-        if ($panier[$id] <= 0) {
-            unset($panier[$id]);
-        }
-        $_SESSION['panier'][$idClient] = $panier;
-    }
-    header("Location: panier.php");
-    exit;
-}
-
-if (isset($_GET['vider'])) {
-    unset($_SESSION['panier'][$idClient]);
-    header("Location: panier.php");
->>>>>>> 48d8a0f227dc2b77e55a63b99f6e814c67ef5117
     exit;
 }
 
