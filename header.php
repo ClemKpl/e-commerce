@@ -97,7 +97,7 @@ if ($utilisateur) {
 
 <div class="page-wrapper">
     <header>
-        <div class="logo">🛍️ MonCatalogue</div>
+        <div class="logo">💗 MonCatalogue</div>
         <nav>
             <a href="account.php"><?= $utilisateur ? 'Mon Compte' : 'Se connecter' ?></a>
             <a href="categories.php">Catégories</a>
