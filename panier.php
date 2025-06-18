@@ -32,6 +32,17 @@ if (isset($_GET['retirer'])) {
     header("Location: panier.php");
     exit;
 }
+// Gérer les ajouts
+if (isset($_GET['ajouter'])) {
+    $id = (int) $_GET['ajouter'];
+    if (isset($panier[$id])) {
+        $panier[$id]++;
+        $_SESSION['panier'][$idClient] = $panier;
+    }
+    header("Location: panier.php");
+    exit;
+}
+
 
 if (isset($_GET['vider'])) {
     unset($_SESSION['panier'][$idClient]);
@@ -73,7 +84,11 @@ if (!empty($panier)) {
         <tbody>
             <?php foreach ($articles as $article): 
                 $id = $article['id_article'];
-                $quantite = $panier[$id];
+                <td>
+    <a href="panier.php?retirer=<?= $id ?>" style="margin-right:5px;">➖</a>
+    <?= $quantite ?>
+    <a href="panier.php?ajouter=<?= $id ?>" style="margin-left:5px;">➕</a>
+</td>
                 $sousTotal = $article['prix'] * $quantite;
                 $total += $sousTotal;
             ?>
