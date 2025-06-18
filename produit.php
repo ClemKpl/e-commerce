@@ -31,26 +31,64 @@ $notations = $stmt->fetchAll();
 
 <style>
     .produit {
-        max-width: 600px;
+        max-width: 700px;
         margin: 40px auto;
-        background: #f9f9f9;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        background: #ffffff;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.04);
     }
+
     .produit h1 {
-        font-size: 24px;
-        margin-bottom: 10px;
-        color: #2c3e50;
+        font-size: 1.8em;
+        margin-bottom: 15px;
+        color: #222;
     }
+
     .produit p {
         margin: 10px 0;
+        font-size: 1em;
+        color: #555;
     }
+
+    .produit a {
+        color: #d38cad;
+        text-decoration: underline;
+    }
+
     .avis {
-        background: #fff;
-        padding: 10px;
-        border-radius: 5px;
-        margin-top: 10px;
+        background: #f9f9f9;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 20px;
+    }
+
+    .avis ul {
+        padding-left: 20px;
+        margin: 10px 0 0 0;
+        color: #666;
+        font-style: italic;
+    }
+
+    .add-to-cart-form button {
+        background-color: #e9bcd3;
+        border: none;
+        padding: 10px 16px;
+        border-radius: 6px;
+        color: #333;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+        margin-top: 16px;
+    }
+
+    .add-to-cart-form button:hover {
+        background-color: #d7a8c2;
+    }
+
+    .add-to-cart-form button:disabled {
+        background-color: #ddd;
+        cursor: not-allowed;
     }
 </style>
 
@@ -70,10 +108,10 @@ $notations = $stmt->fetchAll();
         <p><strong>Note moyenne :</strong> <?= $moyenne ?>/5</p>
 
         <div class="avis">
-            <strong>Avis :</strong>
+            <strong>Avis des utilisateurs :</strong>
             <ul>
                 <?php foreach ($notations as $note): ?>
-                    <li><em>« <?= htmlspecialchars($note['avis']) ?> »</em></li>
+                    <li>« <?= htmlspecialchars($note['avis']) ?> »</li>
                 <?php endforeach; ?>
             </ul>
         </div>
@@ -83,7 +121,7 @@ $notations = $stmt->fetchAll();
 
     <?php if (isset($_SESSION['utilisateur'])): ?>
         <!-- Formulaire pour ajouter au panier -->
-        <form class="add-to-cart-form" data-id="<?= $article['id_article'] ?>" style="margin-top: 20px;">
+        <form class="add-to-cart-form" data-id="<?= $article['id_article'] ?>">
             <button type="submit">Ajouter au panier 🛒</button>
         </form>
     <?php else: ?>
@@ -94,12 +132,12 @@ $notations = $stmt->fetchAll();
         </p>
     <?php endif; ?>
 
-    <p style="margin-top: 20px;">
+    <p style="margin-top: 30px;">
         <a href="categories.php?categorie=<?= $article['id_categorie'] ?>">← Retour à la catégorie</a>
     </p>
 </div>
 
-<!-- Script AJAX pour ajouter au panier -->
+<?php if (isset($_SESSION['utilisateur'])): ?>
 <script>
 document.querySelectorAll('.add-to-cart-form').forEach(form => {
     form.addEventListener('submit', function(e) {
@@ -147,5 +185,6 @@ document.querySelectorAll('.add-to-cart-form').forEach(form => {
     });
 });
 </script>
+<?php endif; ?>
 
 <?php require_once('footer.php'); ?>
