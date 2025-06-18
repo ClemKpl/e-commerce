@@ -1,137 +1,105 @@
 <?php
-session_start(); // Nécessaire pour vérifier la connexion
-
+session_start();
 $pdo = new PDO("mysql:host=10.96.16.82;dbname=magasin;charset=utf8", "colin", "");
-
 require_once('header.php');
 
-$categories = $pdo->query("SELECT * FROM categories")->fetchAll();
-
-$articles = [];
-
-if (isset($_GET['categorie'])) {
-    $categorieId = (int) $_GET['categorie'];
-    
-    $stmt = $pdo->prepare("SELECT * FROM articles WHERE id_categorie = :id_categorie");
-    $stmt->execute(['id_categorie' => $categorieId]);
-    $articles = $stmt->fetchAll();
+// Vérifie que l'id est dans l'URL
+if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
+    echo "<p>Produit non trouvé.</p>";
+    require_once('footer.php');
+    exit;
 }
 
-// Notations
-$notations = [];
-if (!empty($articles)) {
-    $ids = implode(',', array_column($articles, 'id_article'));
-    $stmt = $pdo->query("SELECT * FROM notation WHERE id_article IN ($ids)");
-    $allNotes = $stmt->fetchAll();
+$id = (int) $_GET['id'];
 
-    foreach ($allNotes as $note) {
-        $id = $note['id_article'];
-        if (!isset($notations[$id])) $notations[$id] = [];
-        $notations[$id][] = $note;
-    }
+// Récupère les infos du produit
+$stmt = $pdo->prepare("SELECT * FROM articles WHERE id_article = :id");
+$stmt->execute(['id' => $id]);
+$article = $stmt->fetch();
+
+if (!$article) {
+    echo "<p>Ce produit n'existe pas.</p>";
+    require_once('footer.php');
+    exit;
 }
+
+// Récupère les notations
+$stmt = $pdo->prepare("SELECT * FROM notation WHERE id_article = :id");
+$stmt->execute(['id' => $id]);
+$notations = $stmt->fetchAll();
 ?>
 
 <style>
-    h1, h2 { color: #2c3e50; }
-    .categories {
-        margin: 20px 0;
-        padding: 10px 0;
-        border-bottom: 1px solid #ccc;
+    .produit {
+        max-width: 600px;
+        margin: 40px auto;
+        background: #f9f9f9;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
-    .categories a {
-        display: inline-block;
-        background-color: #3498db;
-        color: white;
-        padding: 8px 14px;
-        margin: 5px 10px 5px 0;
+    .produit h1 {
+        font-size: 24px;
+        margin-bottom: 10px;
+        color: #2c3e50;
+    }
+    .produit p {
+        margin: 10px 0;
+    }
+    .avis {
+        background: #fff;
+        padding: 10px;
         border-radius: 5px;
-        text-decoration: none;
-        transition: 0.3s;
-    }
-    .categories a:hover {
-        background-color: #2980b9;
-    }
-    .article {
-        background-color: #fff;
-        border: 1px solid #ddd;
-        padding: 15px;
-        margin-bottom: 15px;
-        border-radius: 8px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    }
-    .article strong a {
-        color: #34495e;
-        text-decoration: none;
-    }
-    .article strong a:hover {
-        text-decoration: underline;
+        margin-top: 10px;
     }
 </style>
 
-<h1>Catégories</h1>
+<div class="produit">
+    <h1><?= htmlspecialchars($article['produit']) ?></h1>
+    <p><strong>Prix :</strong> <?= number_format($article['prix'], 2, ',', ' ') ?> €</p>
 
-<div class="categories">
-    <?php foreach ($categories as $cat): ?>
-        <a href="?categorie=<?= $cat['id_categorie'] ?>">
-            <?= htmlspecialchars($cat['nom']) ?>
-        </a>
-    <?php endforeach; ?>
+    <?php if (!empty($article['description'])): ?>
+        <p><strong>Description :</strong><br><?= nl2br(htmlspecialchars($article['description'])) ?></p>
+    <?php endif; ?>
+
+    <?php if ($notations): ?>
+        <?php
+        $notes = array_column($notations, 'note');
+        $moyenne = round(array_sum($notes) / count($notes), 1);
+        ?>
+        <p><strong>Note moyenne :</strong> <?= $moyenne ?>/5</p>
+
+        <div class="avis">
+            <strong>Avis :</strong>
+            <ul>
+                <?php foreach ($notations as $note): ?>
+                    <li><em>« <?= htmlspecialchars($note['avis']) ?> »</em></li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+    <?php else: ?>
+        <p>Aucune évaluation pour ce produit.</p>
+    <?php endif; ?>
+
+    <?php if (isset($_SESSION['utilisateur'])): ?>
+        <!-- Formulaire pour ajouter au panier -->
+        <form class="add-to-cart-form" data-id="<?= $article['id_article'] ?>" style="margin-top: 20px;">
+            <button type="submit">Ajouter au panier 🛒</button>
+        </form>
+    <?php else: ?>
+        <p style="margin-top: 20px;">
+            <a href="account.php?redirect=<?= urlencode($_SERVER['REQUEST_URI']) ?>">
+                Se connecter pour ajouter au panier 🔐
+            </a>
+        </p>
+    <?php endif; ?>
+
+    <p style="margin-top: 20px;">
+        <a href="categories.php?categorie=<?= $article['id_categorie'] ?>">← Retour à la catégorie</a>
+    </p>
 </div>
 
-<?php if (isset($_GET['categorie'])): ?>
-    <h2>Articles de la catégorie : 
-        <?= htmlspecialchars($categories[array_search($categorieId, array_column($categories, 'id_categorie'))]['nom']) ?>
-    </h2>
-
-    <?php if (count($articles) === 0): ?>
-        <p>Aucun article dans cette catégorie.</p>
-    <?php else: ?>
-        <?php foreach ($articles as $article): ?>
-            <div class="article">
-                <strong>
-                    <a href="produit.php?id=<?= $article['id_article'] ?>">
-                        <?= htmlspecialchars($article['produit']) ?>
-                    </a>
-                </strong>
-                <br>Prix : <?= number_format($article['prix'], 2, ',', ' ') ?> €
-
-                <?php
-                $id = $article['id_article'];
-                if (isset($notations[$id])) {
-                    $notes = array_column($notations[$id], 'note');
-                    $moyenne = round(array_sum($notes) / count($notes), 1);
-                    echo "<p>Note moyenne : <strong>$moyenne/5</strong></p>";
-                    echo "<ul style='margin: 0; padding-left: 20px;'>";
-                    foreach ($notations[$id] as $n) {
-                        echo "<li><em>« " . htmlspecialchars($n['avis']) . " »</em></li>";
-                    }
-                    echo "</ul>";
-                } else {
-                    echo "<p>Aucune évaluation</p>";
-                }
-                ?>
-
-                <?php if (isset($_SESSION['utilisateur'])): ?>
-                    <!-- Si connecté : afficher le bouton -->
-                    <form class="add-to-cart-form" data-id="<?= $article['id_article'] ?>" style="margin-top: 10px;">
-                        <button type="submit">Ajouter au panier 🛒</button>
-                    </form>
-                <?php else: ?>
-                    <!-- Sinon : lien de redirection -->
-                    <p style="margin-top: 10px;">
-                        <a href="account.php?redirect=<?= urlencode($_SERVER['REQUEST_URI']) ?>">
-                            Se connecter pour ajouter au panier 🔐
-                        </a>
-                    </p>
-                <?php endif; ?>
-            </div>
-        <?php endforeach; ?>
-    <?php endif; ?>
-<?php endif; ?>
-
-<!-- Script AJAX uniquement si connecté -->
-<?php if (isset($_SESSION['utilisateur'])): ?>
+<!-- Script AJAX pour ajouter au panier -->
 <script>
 document.querySelectorAll('.add-to-cart-form').forEach(form => {
     form.addEventListener('submit', function(e) {
@@ -179,6 +147,5 @@ document.querySelectorAll('.add-to-cart-form').forEach(form => {
     });
 });
 </script>
-<?php endif; ?>
 
 <?php require_once('footer.php'); ?>
