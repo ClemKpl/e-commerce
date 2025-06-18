@@ -19,7 +19,7 @@ $produits = $pdo->query("SELECT * FROM articles ORDER BY id_article DESC LIMIT 4
 }
 .accueil h1 {
     font-size: 1.8em;
-    color: #e9bcd3;
+    color: black;
     margin-bottom: 10px;
 }
 .accueil p {
