@@ -10,11 +10,12 @@ $fournisseurs = $pdo->query("SELECT * FROM fournisseurs")->fetchAll();
 
 $confirmation = null;
 
-// Vérifie si l'utilisateur est connecté
+// Vérifie si l'utilisateur est connecté et admin
 $connecte = isset($_SESSION['utilisateur']);
+$admin = $connecte && !empty($_SESSION['utilisateur']['admin']) && $_SESSION['utilisateur']['admin'] == 1;
 
-// Traitement du formulaire uniquement si connecté
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && $connecte) {
+// Traitement du formulaire uniquement si admin
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $admin) {
     $nom = $_POST['produit'] ?? '';
     $prix = floatval($_POST['prix'] ?? 0);
     $id_categorie = intval($_POST['id_categorie'] ?? 0);
@@ -128,9 +129,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $connecte) {
 <div class="form-container">
     <h1>➕ Ajouter un nouvel article</h1>
 
-    <?php if (!$connecte): ?>
+    <?php if (!$admin): ?>
         <a href="account.php?redirect=<?= urlencode($_SERVER['REQUEST_URI']) ?>" class="warning-message">
-            ⚠️ Veuillez vous connecter pour ajouter un article.
+            🔒 Accès réservé aux administrateurs. Cliquez ici pour vous connecter.
         </a>
     <?php else: ?>
 
