@@ -13,7 +13,7 @@
     ">
         <div style="max-width: 1200px; margin: auto;">
             <p style="margin: 0; font-size: 0.95em; color: #888;">
-                &copy; <?= date('Y') ?> Monsite-e-commerce. Clément, Yelena, Clémence, Léo.
+                &copy; <?= date('Y') ?> Monsite-e-commerce. Yelena, Clémence, Clément et Léo
             </p>
         </div>
     </footer>
