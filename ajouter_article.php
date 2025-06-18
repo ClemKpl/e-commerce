@@ -10,7 +10,7 @@ $fournisseurs = $pdo->query("SELECT * FROM fournisseurs")->fetchAll();
 
 $confirmation = null;
 
-// Vérifie que l'utilisateur est connecté
+// Vérifie si l'utilisateur est connecté
 $connecte = isset($_SESSION['utilisateur']);
 
 // Traitement du formulaire uniquement si connecté
@@ -106,6 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $connecte) {
     }
 
     .warning-message {
+        display: block;
         background-color: #fff5f5;
         color: #b10000;
         padding: 16px;
@@ -115,6 +116,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $connecte) {
         font-weight: 500;
         margin: 40px auto;
         max-width: 600px;
+        text-decoration: none;
+        transition: background-color 0.2s ease;
+    }
+
+    .warning-message:hover {
+        background-color: #ffecec;
     }
 </style>
 
@@ -122,9 +129,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $connecte) {
     <h1>➕ Ajouter un nouvel article</h1>
 
     <?php if (!$connecte): ?>
-        <div class="warning-message">
+        <a href="account.php?redirect=<?= urlencode($_SERVER['REQUEST_URI']) ?>" class="warning-message">
             ⚠️ Veuillez vous connecter pour ajouter un article.
-        </div>
+        </a>
     <?php else: ?>
 
         <?php if ($confirmation): ?>
