@@ -103,6 +103,7 @@ if ($utilisateur) {
     <header>
         <div class="logo">💗AchatsFastoches</div>
         <nav>
+            <a href="index.php">Accueil</a>
             <a href="account.php"><?= $utilisateur ? 'Mon Compte' : 'Se connecter' ?></a>
             <a href="categories.php">Catégories</a>
             <a href="ajouter_article.php">➕ Ajouter</a>
