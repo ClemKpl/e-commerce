@@ -10,8 +10,11 @@ $fournisseurs = $pdo->query("SELECT * FROM fournisseurs")->fetchAll();
 
 $confirmation = null;
 
-// Traitement du formulaire
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+// Vérifie que l'utilisateur est connecté
+$connecte = isset($_SESSION['utilisateur']);
+
+// Traitement du formulaire uniquement si connecté
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $connecte) {
     $nom = $_POST['produit'] ?? '';
     $prix = floatval($_POST['prix'] ?? 0);
     $id_categorie = intval($_POST['id_categorie'] ?? 0);
@@ -101,50 +104,69 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         background-color: #ffe1e1;
         color: #a00;
     }
+
+    .warning-message {
+        background-color: #fff5f5;
+        color: #b10000;
+        padding: 16px;
+        text-align: center;
+        border: 1px solid #ffcccc;
+        border-radius: 10px;
+        font-weight: 500;
+        margin: 40px auto;
+        max-width: 600px;
+    }
 </style>
 
 <div class="form-container">
     <h1>➕ Ajouter un nouvel article</h1>
 
-    <?php if ($confirmation): ?>
-        <div class="confirmation-message <?= str_starts_with($confirmation, '❌') ? 'error' : '' ?>">
-            <?= $confirmation ?>
+    <?php if (!$connecte): ?>
+        <div class="warning-message">
+            ⚠️ Veuillez vous connecter pour ajouter un article.
         </div>
+    <?php else: ?>
+
+        <?php if ($confirmation): ?>
+            <div class="confirmation-message <?= str_starts_with($confirmation, '❌') ? 'error' : '' ?>">
+                <?= $confirmation ?>
+            </div>
+        <?php endif; ?>
+
+        <form method="post">
+            <label>
+                Nom du produit :
+                <input type="text" name="produit" required>
+            </label>
+
+            <label>
+                Prix (€) :
+                <input type="number" name="prix" step="0.01" min="0" required>
+            </label>
+
+            <label>
+                Catégorie :
+                <select name="id_categorie" required>
+                    <option value="">-- Choisir une catégorie --</option>
+                    <?php foreach ($categories as $cat): ?>
+                        <option value="<?= $cat['id_categorie'] ?>"><?= htmlspecialchars($cat['nom']) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </label>
+
+            <label>
+                Fournisseur (optionnel) :
+                <select name="id_fournisseur">
+                    <option value="">-- Aucun fournisseur --</option>
+                    <?php foreach ($fournisseurs as $f): ?>
+                        <option value="<?= $f['id_fournisseur'] ?>"><?= htmlspecialchars($f['nom']) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </label>
+
+            <button type="submit">Ajouter l'article</button>
+        </form>
     <?php endif; ?>
-
-    <form method="post">
-        <label>
-            Nom du produit :
-            <input type="text" name="produit" required>
-        </label>
-
-        <label>
-            Prix (€) :
-            <input type="number" name="prix" step="0.01" min="0" required>
-        </label>
-
-        <label>
-            Catégorie :
-            <select name="id_categorie" required>
-                <option value="">-- Choisir une catégorie --</option>
-                <?php foreach ($categories as $cat): ?>
-                    <option value="<?= $cat['id_categorie'] ?>"><?= htmlspecialchars($cat['nom']) ?></option>
-                <?php endforeach; ?>
-            </select>
-        </label>
-
-        <label>
-            Fournisseur (optionnel) :
-            <select name="id_fournisseur">
-                <option value="">-- Aucun fournisseur --</option>
-                <?php foreach ($fournisseurs as $f): ?>
-                    <option value="<?= $f['id_fournisseur'] ?>"><?= htmlspecialchars($f['nom']) ?></option>
-                <?php endforeach; ?>
-            </select>
-        </label>
-
-        <button type="submit">Ajouter l'article</button>
-    </form>
 </div>
 
 <?php require_once('footer.php'); ?>
