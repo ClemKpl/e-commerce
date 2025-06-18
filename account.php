@@ -185,7 +185,7 @@ if (isset($_GET['logout'])) {
                         <tr>
                             <td>#<?= $commande['id_commande'] ?></td>
                             <td><?= date('d/m/Y', strtotime($commande['date'])) ?></td>
-                            <td><?= htmlspecialchars($commande['statut']) ?></td>
+                            <td><?= htmlspecialchars($commande['statut_livraison']) ?></td>
                         </tr>
                     <?php endforeach; ?>
                 </table>
