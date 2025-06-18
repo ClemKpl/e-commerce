@@ -32,6 +32,7 @@ if (isset($_GET['retirer'])) {
     header("Location: panier.php");
     exit;
 }
+
 // Gérer les ajouts
 if (isset($_GET['ajouter'])) {
     $id = (int) $_GET['ajouter'];
@@ -42,7 +43,6 @@ if (isset($_GET['ajouter'])) {
     header("Location: panier.php");
     exit;
 }
-
 
 if (isset($_GET['vider'])) {
     unset($_SESSION['panier'][$idClient]);
@@ -84,18 +84,18 @@ if (!empty($panier)) {
         <tbody>
             <?php foreach ($articles as $article): 
                 $id = $article['id_article'];
-                <td>
-    <a href="panier.php?retirer=<?= $id ?>" style="margin-right:5px;">➖</a>
-    <?= $quantite ?>
-    <a href="panier.php?ajouter=<?= $id ?>" style="margin-left:5px;">➕</a>
-</td>
+                $quantite = $panier[$id];
                 $sousTotal = $article['prix'] * $quantite;
                 $total += $sousTotal;
             ?>
             <tr>
                 <td><?= htmlspecialchars($article['produit']) ?></td>
                 <td><?= number_format($article['prix'], 2, ',', ' ') ?> €</td>
-                <td><?= $quantite ?></td>
+                <td>
+                    <a href="panier.php?retirer=<?= $id ?>" style="margin-right:5px;">➖</a>
+                    <?= $quantite ?>
+                    <a href="panier.php?ajouter=<?= $id ?>" style="margin-left:5px;">➕</a>
+                </td>
                 <td><?= number_format($sousTotal, 2, ',', ' ') ?> €</td>
                 <td><a href="panier.php?retirer=<?= $id ?>">❌ Retirer 1</a></td>
             </tr>
