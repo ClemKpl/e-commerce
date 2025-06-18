@@ -2,11 +2,9 @@
 session_start();
 require_once('header.php');
 
-// Connexion à la base de données
 $pdo = new PDO("mysql:host=10.96.16.82;dbname=magasin;charset=utf8", "colin", "");
 
-// Traitement de la connexion
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'login') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'login') {
     $email = $_POST['email'] ?? '';
     $mdp = $_POST['mdp'] ?? '';
 
@@ -19,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             'id' => $utilisateur['id_client'],
             'nom' => $utilisateur['nom'],
             'email' => $utilisateur['email'],
-            'admin' => $utilisateur['admin'] ?? 0  // ✅ Ajout du champ admin
+            'admin' => $utilisateur['admin'] ?? 0
         ];
         header("Location: account.php");
         exit;
@@ -28,8 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
 }
 
-// Traitement de l'inscription
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'register') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'register') {
     $nom = trim($_POST['nom'] ?? '');
     $email = trim($_POST['email'] ?? '');
 
@@ -40,10 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             $erreurInscription = "Cet email est déjà utilisé.";
         } else {
             $stmt = $pdo->prepare("INSERT INTO clients (nom, email) VALUES (:nom, :email)");
-            $stmt->execute([
-                'nom' => $nom,
-                'email' => $email
-            ]);
+            $stmt->execute(['nom' => $nom, 'email' => $email]);
             $successInscription = "Compte créé avec succès ! Connectez-vous.";
         }
     } else {
@@ -51,7 +45,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
 }
 
-// Déconnexion
 if (isset($_GET['logout'])) {
     unset($_SESSION['utilisateur']);
     header("Location: account.php");
@@ -61,83 +54,12 @@ if (isset($_GET['logout'])) {
 
 <style>
     .account-container {
-        max-width: 600px;
+        max-width: 700px;
         margin: 40px auto;
-        background: #ffffff;
+        background: #fff;
         padding: 30px;
         border-radius: 12px;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
-    }
-
-    .account-container h1, .account-container h2 {
-        margin-top: 0;
-        color: #333;
-    }
-
-    .account-container p {
-        font-size: 1em;
-        color: #555;
-    }
-
-    .account-container a {
-        color: #d38cad;
-        text-decoration: underline;
-        font-weight: 500;
-    }
-
-    .account-container form {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-        margin-bottom: 30px;
-    }
-
-    .account-container input[type="email"],
-    .account-container input[type="password"],
-    .account-container input[type="text"] {
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 6px;
-        font-size: 1em;
-        width: 100%;
-    }
-
-    .account-container button {
-        background-color: #e9bcd3;
-        border: none;
-        padding: 10px 16px;
-        border-radius: 6px;
-        color: #333;
-        font-weight: 500;
-        cursor: pointer;
-        transition: background-color 0.2s ease;
-        width: fit-content;
-    }
-
-    .account-container button:hover {
-        background-color: #d7a8c2;
-    }
-
-    .error-message {
-        color: red;
-        font-weight: 500;
-    }
-
-    .success-message {
-        color: green;
-        font-weight: 500;
-    }
-
-    .commandes {
-        margin-top: 30px;
-        padding: 20px;
-        background: #f9f9f9;
-        border-radius: 8px;
-    }
-
-    .commandes h3 {
-        margin-top: 0;
-        color: #444;
     }
 
     .commandes table {
@@ -154,7 +76,30 @@ if (isset($_GET['logout'])) {
 
     .commandes th {
         background: #eee;
-        color: #333;
+    }
+
+    .toggle-details {
+        cursor: pointer;
+        color: #b10000;
+        font-size: 18px;
+        user-select: none;
+        margin-left: 5px;
+    }
+
+    .details {
+        display: none;
+        background: #f1f1f1;
+        margin-top: 5px;
+        padding: 10px;
+        border-radius: 6px;
+    }
+
+    .article-item {
+        padding: 5px 0;
+    }
+
+    .rotate {
+        transform: rotate(90deg);
     }
 </style>
 
@@ -169,85 +114,88 @@ if (isset($_GET['logout'])) {
         </p>
         <p><a href="account.php?logout=1">🔓 Se déconnecter</a></p>
 
-        <!-- 🧾 Historique des commandes -->
         <div class="commandes">
             <h3>📦 Mes commandes</h3>
-
             <?php
             $stmt = $pdo->prepare("SELECT * FROM commandes WHERE id_client = :id ORDER BY date DESC");
             $stmt->execute(['id' => $_SESSION['utilisateur']['id']]);
             $commandes = $stmt->fetchAll();
 
             if ($commandes):
-            ?>
-                <table>
-                    <tr>
-                        <th>ID</th>
-                        <th>Date</th>
-                        <th>Statut</th>
-                    </tr>
-                    <?php foreach ($commandes as $commande): ?>
-                        <tr>
-                            <td>#<?= $commande['id_commande'] ?></td>
-                            <td><?= date('d/m/Y', strtotime($commande['date'])) ?></td>
-                            <td><?= htmlspecialchars($commande['statut_livraison']) ?></td>
-                        </tr>
-                    <?php endforeach; ?>
-                </table>
-            <?php else: ?>
+                foreach ($commandes as $commande):
+                    $idCommande = $commande['id_commande'];
+
+                    // Récupération des articles liés
+                    $stmtArt = $pdo->prepare("
+                        SELECT a.nom, a.prix 
+                        FROM articles_commandes ac
+                        JOIN articles a ON ac.id_article = a.id_article
+                        WHERE ac.id_commande = :id_commande
+                    ");
+                    $stmtArt->execute(['id_commande' => $idCommande]);
+                    $articles = $stmtArt->fetchAll();
+                    ?>
+                    <div class="commande-block">
+                        <table>
+                            <tr>
+                                <td><strong>#<?= $commande['id_commande'] ?></strong></td>
+                                <td><?= date('d/m/Y', strtotime($commande['date'])) ?></td>
+                                <td><?= htmlspecialchars($commande['statut_livraison']) ?></td>
+                            </tr>
+                        </table>
+                        <div>
+                            <span class="toggle-details" onclick="toggleDetails(this)">▶ Voir les articles</span>
+                            <div class="details">
+                                <?php if ($articles): ?>
+                                    <?php foreach ($articles as $article): ?>
+                                        <div class="article-item">
+                                            🛍️ <?= htmlspecialchars($article['nom']) ?> — <?= number_format($article['prix'], 2) ?> €
+                                        </div>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <div>Aucun article trouvé pour cette commande.</div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                <?php endforeach;
+            else: ?>
                 <p>Vous n'avez encore passé aucune commande.</p>
             <?php endif; ?>
         </div>
 
     <?php else: ?>
-
         <h2>Connexion</h2>
-
-        <?php if (isset($erreur)): ?>
-            <p class="error-message"><?= $erreur ?></p>
-        <?php endif; ?>
-
+        <?php if (isset($erreur)): ?><p class="error-message"><?= $erreur ?></p><?php endif; ?>
         <form method="post">
             <input type="hidden" name="action" value="login">
-
-            <label>
-                Email :
-                <input type="email" name="email" required>
-            </label>
-
-            <label>
-                Mot de passe :
-                <input type="password" name="mdp" required placeholder="Tapez votre nom">
-            </label>
-
+            <label>Email : <input type="email" name="email" required></label>
+            <label>Mot de passe : <input type="password" name="mdp" required placeholder="Tapez votre nom"></label>
             <button type="submit">Se connecter</button>
         </form>
 
         <h2>Créer un compte</h2>
-
         <?php if (isset($erreurInscription)): ?>
             <p class="error-message"><?= $erreurInscription ?></p>
         <?php elseif (isset($successInscription)): ?>
             <p class="success-message"><?= $successInscription ?></p>
         <?php endif; ?>
-
         <form method="post">
             <input type="hidden" name="action" value="register">
-
-            <label>
-                Nom :
-                <input type="text" name="nom" required>
-            </label>
-
-            <label>
-                Email :
-                <input type="email" name="email" required>
-            </label>
-
+            <label>Nom : <input type="text" name="nom" required></label>
+            <label>Email : <input type="email" name="email" required></label>
             <button type="submit">Créer mon compte</button>
         </form>
-
     <?php endif; ?>
 </div>
+
+<script>
+function toggleDetails(elem) {
+    const details = elem.nextElementSibling;
+    details.style.display = details.style.display === 'block' ? 'none' : 'block';
+    elem.textContent = details.style.display === 'block' ? '▼ Masquer les articles' : '▶ Voir les articles';
+}
+</script>
 
 <?php require_once('footer.php'); ?>
