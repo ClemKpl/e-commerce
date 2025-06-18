@@ -129,7 +129,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $admin) {
 <div class="form-container">
     <h1>➕ Ajouter un nouvel article</h1>
 
-    <?php if (!$admin): ?>
+    <?php if (!$Admin): ?>
         <a href="account.php?redirect=<?= urlencode($_SERVER['REQUEST_URI']) ?>" class="warning-message">
             🔒 Accès réservé aux administrateurs. Cliquez ici pour vous connecter.
         </a>
