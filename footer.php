@@ -1,15 +1,15 @@
-<!-- footer.php -->
-
-<!-- Balise de pied de page (footer) avec style en ligne -->
-<footer style="background-color: #f8f8f8; padding: 30px 0; text-align: center; font-family: Arial, sans-serif;">
-    
-    <!-- Conteneur centré avec une largeur maximale -->
+<footer style="
+    background: linear-gradient(90deg, #000 0%, #550055 100%);
+    padding: 40px 0;
+    text-align: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #fff;
+    box-shadow: 0 -4px 12px rgba(255, 20, 147, 0.3);
+">
     <div style="max-width: 1200px; margin: auto;">
-        
-        <!-- Paragraphe avec un petit texte en bas de page -->
-        <!-- La fonction date('Y') permet d'afficher automatiquement l'année actuelle -->
-        <p style="margin-bottom: 10px;">&copy; <?= date('Y') ?> Monsite-e-commerce. Clément Yelena Clémence Léo.</p>
-
+        <p style="margin-bottom: 10px; font-size: 1em; color: #ffb3f3;">
+            &copy; <?= date('Y') ?> Monsite-e-commerce. Clément, Yelena, Clémence, Léo.
+        </p>
     </div>
-
 </footer>
+
