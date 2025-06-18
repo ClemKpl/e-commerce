@@ -4,8 +4,8 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 $utilisateur = $_SESSION['utilisateur'] ?? null;
-
 $panierCount = 0;
+
 if ($utilisateur) {
     $idClient = $utilisateur['id'];
     if (isset($_SESSION['panier'][$idClient])) {
@@ -17,14 +17,23 @@ if ($utilisateur) {
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Catalogue</title>
+    <title>Mon site e-commerce</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body {
+        html, body {
+            height: 100%;
             margin: 0;
+            display: flex;
+            flex-direction: column;
+            font-family: system-ui, sans-serif;
             background-color: #f9f9f9;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
             color: #333;
+        }
+
+        .page-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
         }
 
         header {
@@ -63,12 +72,6 @@ if ($utilisateur) {
             background-color: #e9bcd3;
         }
 
-        .container {
-            padding: 24px;
-            max-width: 1200px;
-            margin: auto;
-        }
-
         @media (max-width: 600px) {
             header {
                 flex-direction: column;
@@ -81,18 +84,25 @@ if ($utilisateur) {
                 flex-direction: column;
             }
         }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 24px;
+            width: 100%;
+        }
     </style>
 </head>
 <body>
 
-<header>
-    <div class="logo">💗 MonCatalogue</div>
-    <nav>
-        <a href="account.php"><?= $utilisateur ? 'Mon Compte' : 'Se connecter' ?></a>
-        <a href="categories.php">Catégories</a>
-        <a href="ajouter_article.php">➕ Ajouter</a>
-        <a href="panier.php">Panier (<?= $panierCount ?>)</a>
-    </nav>
-</header>
-
-<div class="container">
+<div class="page-wrapper">
+    <header>
+        <div class="logo">🛍️ MonCatalogue</div>
+        <nav>
+            <a href="account.php"><?= $utilisateur ? 'Mon Compte' : 'Se connecter' ?></a>
+            <a href="categories.php">Catégories</a>
+            <a href="ajouter_article.php">➕ Ajouter</a>
+            <a href="panier.php">Panier (<?= $panierCount ?>)</a>
+        </nav>
+    </header>
+    <div class="container">
