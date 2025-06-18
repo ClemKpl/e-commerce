@@ -80,7 +80,7 @@ if (isset($_GET['logout'])) {
 
     .toggle-details {
         cursor: pointer;
-        color: #b10000;
+        color: #e9bcd3;
         font-size: 18px;
         user-select: none;
         margin-left: 5px;
@@ -109,7 +109,7 @@ if (isset($_GET['logout'])) {
     <?php if (isset($_SESSION['utilisateur'])): ?>
         <p>Bienvenue, <strong><?= htmlspecialchars($_SESSION['utilisateur']['nom']) ?></strong>
             <?php if (!empty($_SESSION['utilisateur']['admin'])): ?>
-                <span style="color: #b10000;">(admin)</span>
+                <span style="color: #e9bcd3;">(admin)</span>
             <?php endif; ?>
         </p>
         <p><a href="account.php?logout=1">🔓 Se déconnecter</a></p>
