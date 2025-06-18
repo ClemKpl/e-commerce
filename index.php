@@ -78,17 +78,10 @@ $produits = $pdo->query("SELECT * FROM articles ORDER BY id_article DESC LIMIT 4
 </style>
 
 <div class="accueil">
-    <h1>Bienvenue dans notre boutique 🛍️</h1>
-    <p>Parcourez nos catégories, découvrez des produits variés et passez vos commandes facilement.</p>
-
-    <div class="liens">
-        <a href="categories.php">🗂️ Voir les catégories</a>
-        <a href="account.php">👤 Mon compte</a>
-        <a href="panier.php">🛒 Mon panier</a>
-    </div>
+    <h1>Bienvenue dans notre boutique </h1>
 
     <div class="produits-recents">
-        <h2>🆕 Derniers produits ajoutés</h2>
+        <h2>🆕 Nos nouveautés</h2>
         <?php foreach ($produits as $prod): ?>
             <div class="produit-card">
                 <h3><?= htmlspecialchars($prod['produit']) ?></h3>
