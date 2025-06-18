@@ -126,6 +126,38 @@ if (isset($_GET['logout'])) {
         color: green;
         font-weight: 500;
     }
+
+    .historique {
+        max-width: 800px;
+        margin: 60px auto 30px auto;
+        background: #fff;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+    }
+
+    .historique h2 {
+        font-size: 1.5em;
+        margin-bottom: 20px;
+        color: #333;
+    }
+
+    .historique table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .historique th,
+    .historique td {
+        padding: 12px;
+        border-bottom: 1px solid #ddd;
+        text-align: left;
+    }
+
+    .historique th {
+        background-color: #f9f9f9;
+        color: #444;
+    }
 </style>
 
 <div class="account-container">
@@ -134,7 +166,6 @@ if (isset($_GET['logout'])) {
     <?php if (isset($_SESSION['utilisateur'])): ?>
         <p>Bienvenue, <strong><?= htmlspecialchars($_SESSION['utilisateur']['nom']) ?></strong> !</p>
         <p><a href="account.php?logout=1">🔓 Se déconnecter</a></p>
-
     <?php else: ?>
 
         <h2>Connexion</h2>
@@ -145,17 +176,8 @@ if (isset($_GET['logout'])) {
 
         <form method="post">
             <input type="hidden" name="action" value="login">
-
-            <label>
-                Email :
-                <input type="email" name="email" required>
-            </label>
-
-            <label>
-                Mot de passe :
-                <input type="password" name="mdp" required placeholder="Tapez votre nom">
-            </label>
-
+            <label>Email : <input type="email" name="email" required></label>
+            <label>Mot de passe : <input type="password" name="mdp" required placeholder="Tapez votre nom"></label>
             <button type="submit">Se connecter</button>
         </form>
 
@@ -169,21 +191,50 @@ if (isset($_GET['logout'])) {
 
         <form method="post">
             <input type="hidden" name="action" value="register">
-
-            <label>
-                Nom :
-                <input type="text" name="nom" required>
-            </label>
-
-            <label>
-                Email :
-                <input type="email" name="email" required>
-            </label>
-
+            <label>Nom : <input type="text" name="nom" required></label>
+            <label>Email : <input type="email" name="email" required></label>
             <button type="submit">Créer mon compte</button>
         </form>
 
     <?php endif; ?>
 </div>
+
+<?php
+// SECTION HISTORIQUE DES COMMANDES
+if (isset($_SESSION['utilisateur'])) {
+    $id_client = $_SESSION['utilisateur']['id'];
+    $stmt = $pdo->prepare("SELECT * FROM commandes WHERE id_client = :id ORDER BY date_commande DESC");
+    $stmt->execute(['id' => $id_client]);
+    $commandes = $stmt->fetchAll();
+
+    if ($commandes):
+?>
+    <div class="historique">
+        <h2>📦 Historique de vos commandes</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th># Commande</th>
+                    <th>Date</th>
+                    <th>Statut</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($commandes as $commande): ?>
+                    <tr>
+                        <td><?= htmlspecialchars($commande['id_commande']) ?></td>
+                        <td><?= date('d/m/Y à H:i', strtotime($commande['date_commande'])) ?></td>
+                        <td><?= htmlspecialchars($commande['statut_livraison']) ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+<?php
+    else:
+        echo '<p style="text-align:center; margin-top:40px;">Vous n’avez passé aucune commande pour le moment.</p>';
+    endif;
+}
+?>
 
 <?php require_once('footer.php'); ?>
