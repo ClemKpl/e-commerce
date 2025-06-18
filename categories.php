@@ -1,28 +1,19 @@
 <?php
-// Connexion à la base de données via PDO
+session_start(); // Ajout essentiel
 $pdo = new PDO("mysql:host=10.96.16.82;dbname=magasin;charset=utf8", "colin", "");
-
-// Inclusion du header (structure HTML, menu, etc.)
 require_once('header.php');
 
-// Récupération de toutes les catégories dans la base de données
 $categories = $pdo->query("SELECT * FROM categories")->fetchAll();
 
-// Initialisation du tableau des articles
 $articles = [];
 
-// Si l'URL contient un paramètre 'categorie'
 if (isset($_GET['categorie'])) {
-    // On convertit l'identifiant de la catégorie en entier (sécurité)
     $categorieId = (int) $_GET['categorie'];
-    
-    // Préparation de la requête pour récupérer les articles liés à cette catégorie
     $stmt = $pdo->prepare("SELECT * FROM articles WHERE id_categorie = :id_categorie");
     $stmt->execute(['id_categorie' => $categorieId]);
     $articles = $stmt->fetchAll();
 }
 
-// Récupération des notations si des articles sont présents
 $notations = [];
 if (!empty($articles)) {
     $ids = implode(',', array_column($articles, 'id_article'));
@@ -74,10 +65,8 @@ if (!empty($articles)) {
     }
 </style>
 
-<!-- Titre principal -->
 <h1>Catégories</h1>
 
-<!-- Liste des catégories sous forme de boutons -->
 <div class="categories">
     <?php foreach ($categories as $cat): ?>
         <a href="?categorie=<?= $cat['id_categorie'] ?>">
@@ -86,9 +75,8 @@ if (!empty($articles)) {
     <?php endforeach; ?>
 </div>
 
-<!-- Affichage des articles de la catégorie sélectionnée -->
 <?php if (isset($_GET['categorie'])): ?>
-    <h2>Articles de la catégorie : 
+    <h2>Articles de la catégorie :
         <?= htmlspecialchars($categories[array_search($categorieId, array_column($categories, 'id_categorie'))]['nom']) ?>
     </h2>
 
@@ -97,7 +85,6 @@ if (!empty($articles)) {
     <?php else: ?>
         <?php foreach ($articles as $article): ?>
             <div class="article">
-                <!-- ✅ Lien vers la fiche produit -->
                 <strong>
                     <a href="produit.php?id=<?= $article['id_article'] ?>">
                         <?= htmlspecialchars($article['produit']) ?>
@@ -121,15 +108,23 @@ if (!empty($articles)) {
                 }
                 ?>
 
-                <form class="add-to-cart-form" data-id="<?= $article['id_article'] ?>" style="margin-top: 10px;">
-                    <button type="submit">Ajouter au panier 🛒</button>
-                </form>
+                <?php if (isset($_SESSION['utilisateur'])): ?>
+                    <form class="add-to-cart-form" data-id="<?= $article['id_article'] ?>" style="margin-top: 10px;">
+                        <button type="submit">Ajouter au panier 🛒</button>
+                    </form>
+                <?php else: ?>
+                    <p style="margin-top: 10px;">
+                        <a href="account.php?redirect=<?= urlencode($_SERVER['REQUEST_URI']) ?>">
+                            Se connecter pour ajouter au panier 🔐
+                        </a>
+                    </p>
+                <?php endif; ?>
             </div>
         <?php endforeach; ?>
     <?php endif; ?>
 <?php endif; ?>
 
-<!-- Script pour ajouter au panier en AJAX -->
+<?php if (isset($_SESSION['utilisateur'])): ?>
 <script>
 document.querySelectorAll('.add-to-cart-form').forEach(form => {
     form.addEventListener('submit', function(e) {
@@ -177,5 +172,6 @@ document.querySelectorAll('.add-to-cart-form').forEach(form => {
     });
 });
 </script>
+<?php endif; ?>
 
 <?php require_once('footer.php'); ?>
