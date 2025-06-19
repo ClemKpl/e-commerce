@@ -3,110 +3,272 @@ session_start();
 $pdo = new PDO("mysql:host=10.96.16.82;dbname=magasin;charset=utf8", "colin", "");
 require_once('header.php');
 
-// Vérifie que la catégorie est bien spécifiée
-if (!isset($_GET['categorie']) || !is_numeric($_GET['categorie'])) {
-    echo "<p>Catégorie non spécifiée.</p>";
+// Vérifie que l'id est dans l'URL
+if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
+    echo "<p>Produit non trouvé.</p>";
     require_once('footer.php');
     exit;
 }
 
-$categorie_id = (int) $_GET['categorie'];
-$tri = $_GET['tri'] ?? null;
+$id = (int) $_GET['id'];
 
-// Requête SQL : articles + note moyenne
-$sql = "
-    SELECT 
-        a.*,
-        AVG(n.note) AS moyenne_note
-    FROM articles a
-    LEFT JOIN notation n ON a.id_article = n.id_article
-    WHERE a.id_categorie = :categorie
-    GROUP BY a.id_article
-";
+// Récupère les infos du produit
+$stmt = $pdo->prepare("SELECT * FROM articles WHERE id_article = :id");
+$stmt->execute(['id' => $id]);
+$article = $stmt->fetch();
 
-// Tri selon paramètre
-if ($tri === 'meilleure_note') {
-    $sql .= " ORDER BY moyenne_note DESC";
-} elseif ($tri === 'pire_note') {
-    $sql .= " ORDER BY moyenne_note ASC";
-} else {
-    $sql .= " ORDER BY a.produit ASC";
+if (!$article) {
+    echo "<p>Ce produit n'existe pas.</p>";
+    require_once('footer.php');
+    exit;
 }
 
-$stmt = $pdo->prepare($sql);
-$stmt->execute(['categorie' => $categorie_id]);
-$articles = $stmt->fetchAll();
+// Récupère les notations
+$stmt = $pdo->prepare("SELECT * FROM notation WHERE id_article = :id");
+$stmt->execute(['id' => $id]);
+$notations = $stmt->fetchAll();
+
+// Traitement du formulaire de notation
+$confirmation_avis = null;
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['note'], $_POST['avis']) && isset($_SESSION['utilisateur'])) {
+    $note = (int) $_POST['note'];
+    $avis = trim($_POST['avis']);
+    $id_client = $_SESSION['utilisateur']['id'];
+
+    if ($note >= 1 && $note <= 5 && $avis !== '') {
+        $stmt = $pdo->prepare("
+            INSERT INTO notation (id_article, id_client, note, avis)
+            VALUES (:id_article, :id_client, :note, :avis)
+        ");
+        $stmt->execute([
+            'id_article' => $id,
+            'id_client' => $id_client,
+            'note' => $note,
+            'avis' => $avis
+        ]);
+        $confirmation_avis = "✅ Merci pour votre évaluation !";
+        // Recharge les notations après insertion
+        $stmt = $pdo->prepare("SELECT * FROM notation WHERE id_article = :id");
+        $stmt->execute(['id' => $id]);
+        $notations = $stmt->fetchAll();
+    } else {
+        $confirmation_avis = "❌ Veuillez remplir correctement tous les champs.";
+    }
+}
 ?>
 
 <style>
-.tri-buttons {
-    display: flex;
-    gap: 10px;
-    margin: 20px 0;
-}
-.tri-buttons a {
-    background-color: #e9bcd3;
-    padding: 10px 14px;
-    border-radius: 8px;
-    text-decoration: none;
-    color: #333;
-    font-weight: 500;
-    transition: background 0.3s;
-}
-.tri-buttons a:hover {
-    background-color: #d7a8c2;
-}
-.produit-card {
-    background: #fff;
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    margin-bottom: 20px;
-}
-.produit-card h3 {
-    margin-top: 0;
-    font-size: 1.2em;
-}
-.produit-card p {
-    margin: 8px 0;
-    color: #555;
-}
-.produit-card a {
-    color: #d38cad;
-    text-decoration: none;
-}
-.produit-card a:hover {
-    text-decoration: underline;
-}
+    .produit {
+        max-width: 700px;
+        margin: 40px auto;
+        background: #ffffff;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+    }
+
+    .produit h1 {
+        font-size: 1.8em;
+        margin-bottom: 15px;
+        color: #222;
+    }
+
+    .produit p {
+        margin: 10px 0;
+        font-size: 1em;
+        color: #555;
+    }
+
+    .produit a {
+        color: #d38cad;
+        text-decoration: underline;
+    }
+
+    .avis {
+        background: #f9f9f9;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 20px;
+    }
+
+    .avis ul {
+        padding-left: 20px;
+        margin: 10px 0 0 0;
+        color: #666;
+        font-style: italic;
+    }
+
+    .add-to-cart-form button {
+        background-color: #e9bcd3;
+        border: none;
+        padding: 10px 16px;
+        border-radius: 6px;
+        color: #333;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+        margin-top: 16px;
+    }
+
+    .add-to-cart-form button:hover {
+        background-color: #d7a8c2;
+    }
+
+    .add-to-cart-form button:disabled {
+        background-color: #ddd;
+        cursor: not-allowed;
+    }
+
+    .fournisseur-btn {
+        display: inline-block;
+        background:  #d38cad);
+        color: black;
+        font-weight: 500;
+        padding: 10px 16px;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: background 0.3s ease;
+    }
+
+    .fournisseur-btn:hover {
+        background: #c07699);
+    }
 </style>
 
-<div class="container">
-    <h1>Produits de la catégorie <?= htmlspecialchars($categorie_id) ?></h1>
+<div class="produit">
+    <h1><?= htmlspecialchars($article['produit']) ?></h1>
+    <p><strong>Prix :</strong> <?= number_format($article['prix'], 2, ',', ' ') ?> €</p>
 
-    <div class="tri-buttons">
-        <a href="?categorie=<?= $categorie_id ?>&tri=meilleure_note">🔝 Meilleure note</a>
-        <a href="?categorie=<?= $categorie_id ?>&tri=pire_note">🔻 Pire note</a>
-        <a href="?categorie=<?= $categorie_id ?>">📄 Par défaut</a>
-    </div>
-
-    <?php if (!$articles): ?>
-        <p>Aucun produit trouvé dans cette catégorie.</p>
-    <?php else: ?>
-        <?php foreach ($articles as $article): ?>
-            <div class="produit-card">
-                <h3><?= htmlspecialchars($article['produit']) ?></h3>
-                <p><strong>Prix :</strong> <?= number_format($article['prix'], 2, ',', ' ') ?> €</p>
-                <?php if ($article['moyenne_note'] !== null): ?>
-                    <p><strong>Note moyenne :</strong> <?= round($article['moyenne_note'], 1) ?>/5</p>
-                <?php else: ?>
-                    <p><em>Pas encore noté</em></p>
-                <?php endif; ?>
-                <p>
-                    <a href="produit.php?id=<?= $article['id_article'] ?>">Voir le produit →</a>
-                </p>
-            </div>
-        <?php endforeach; ?>
+    <?php if (!empty($article['description'])): ?>
+        <p><strong>Description :</strong><br><?= nl2br(htmlspecialchars($article['description'])) ?></p>
     <?php endif; ?>
+
+    <?php if ($notations): ?>
+        <?php
+        $notes = array_column($notations, 'note');
+        $moyenne = round(array_sum($notes) / count($notes), 1);
+        ?>
+        <p><strong>Note moyenne :</strong> <?= $moyenne ?>/5</p>
+
+        <div class="avis">
+            <strong>Avis des utilisateurs :</strong>
+            <ul>
+                <?php foreach ($notations as $note): ?>
+                    <li>« <?= htmlspecialchars($note['avis']) ?> »</li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+    <?php else: ?>
+        <p>Aucune évaluation pour ce produit.</p>
+    <?php endif; ?>
+
+    <?php if (isset($_SESSION['utilisateur'])): ?>
+        <!-- Formulaire pour ajouter au panier -->
+        <form class="add-to-cart-form" data-id="<?= $article['id_article'] ?>">
+            <button type="submit">Ajouter au panier 🛒</button>
+        </form>
+    <?php else: ?>
+        <p style="margin-top: 20px;">
+            <a href="account.php?redirect=<?= urlencode($_SERVER['REQUEST_URI']) ?>">
+                Se connecter pour ajouter au panier 🔐
+            </a>
+        </p>
+    <?php endif; ?>
+
+    <?php if (isset($_SESSION['utilisateur'])): ?>
+        <div style="margin-top: 30px;">
+            <h3 style="font-size:1.2em;color:#444;">📝 Laisser un avis</h3>
+
+            <?php if ($confirmation_avis): ?>
+                <p style="background:#f3d1e0;padding:10px;border-radius:6px;margin-top:10px;">
+                    <?= htmlspecialchars($confirmation_avis) ?>
+                </p>
+            <?php endif; ?>
+
+            <form method="post" style="display: flex; flex-direction: column; gap: 12px; max-width: 400px; margin-top: 16px;">
+                <label>
+                    Note :
+                    <select name="note" required style="padding:10px;border:1px solid #ccc;border-radius:6px;">
+                        <option value="">-- Choisir --</option>
+                        <?php for ($i = 1; $i <= 5; $i++): ?>
+                            <option value="<?= $i ?>"><?= $i ?>/5</option>
+                        <?php endfor; ?>
+                    </select>
+                </label>
+
+                <label>
+                    Avis :
+                    <textarea name="avis" rows="4" required style="padding:10px;border:1px solid #ccc;border-radius:6px;"></textarea>
+                </label>
+
+                <button type="submit" style="background:#e9bcd3;padding:10px 16px;border-radius:6px;border:none;cursor:pointer;font-weight:500;">
+                    Envoyer l'avis ✉️
+                </button>
+            </form>
+        </div>
+    <?php endif; ?>
+
+    <?php if (!empty($article['id_fournisseur'])): ?>
+        <p style="margin-top: 30px;">
+            <a href="fournisseurs.php?id=<?= $article['id_fournisseur'] ?>" class="fournisseur-btn">
+                🏢 Voir le fournisseur
+            </a>
+        </p>
+    <?php endif; ?>
+
+    <p style="margin-top: 30px;">
+        <a href="categories.php?categorie=<?= $article['id_categorie'] ?>">← Retour à la catégorie</a>
+    </p>
 </div>
+
+<?php if (isset($_SESSION['utilisateur'])): ?>
+<script>
+document.querySelectorAll('.add-to-cart-form').forEach(form => {
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const id = this.dataset.id;
+        const button = this.querySelector('button');
+        const originalText = button.textContent;
+
+        button.disabled = true;
+        button.textContent = "✅ Ajouté";
+
+        fetch('add_to_cart.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'id_article=' + encodeURIComponent(id)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const panierLink = document.querySelector('a[href="panier.php"]');
+                if (panierLink) {
+                    panierLink.textContent = "Panier (" + data.total + ")";
+                }
+
+                setTimeout(() => {
+                    button.disabled = false;
+                    button.textContent = originalText;
+                }, 3000);
+            } else {
+                button.textContent = "Erreur";
+                setTimeout(() => {
+                    button.disabled = false;
+                    button.textContent = originalText;
+                }, 3000);
+            }
+        })
+        .catch(() => {
+            button.textContent = "⚠️ Erreur réseau";
+            setTimeout(() => {
+                button.disabled = false;
+                button.textContent = originalText;
+            }, 1500);
+        });
+    });
+});
+</script>
+<?php endif; ?>
 
 <?php require_once('footer.php'); ?>
