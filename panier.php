@@ -57,9 +57,9 @@ if (isset($_GET['acheter'])) {
     unset($_SESSION['panier'][$idClient]);
 
     //On définit un message de confirmation
-    $_SESSION['achat_validé'] = true;
+    $_SESSION['achat_valide'] = true;
 
-    header("Location : panier.php");
+    header("Location: panier.php");
     exit;
 }
 
@@ -79,7 +79,7 @@ if (!empty($panier)) {
 ?>
 
 <h1>🛒 Mon panier</h1>
-<?php if (isset($_SESSION['achat_validé'])): ?>
+<?php if (isset($_SESSION['achat_valide'])): ?>
     <div style="display:
         padding : 15px;
         background-color: #2ecc71;
@@ -90,7 +90,7 @@ if (!empty($panier)) {
     ">
         ✅ Votre achat a été validé avec succès !
     </div>
-    <?php unset($_SESSION['achat_validé']); ?>
+    <?php unset($_SESSION['achat_valide']); ?>
 <?php endif; ?>
 
 <?php if (empty($articles)): ?>
