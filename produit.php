@@ -3,7 +3,6 @@ session_start();
 $pdo = new PDO("mysql:host=10.96.16.82;dbname=magasin;charset=utf8", "colin", "");
 require_once('header.php');
 
-// Vérifie que l'id est dans l'URL
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
     echo "<p>Produit non trouvé.</p>";
     require_once('footer.php');
@@ -12,7 +11,6 @@ if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
 
 $id = (int) $_GET['id'];
 
-// Récupère les infos du produit
 $stmt = $pdo->prepare("SELECT * FROM articles WHERE id_article = :id");
 $stmt->execute(['id' => $id]);
 $article = $stmt->fetch();
@@ -23,12 +21,10 @@ if (!$article) {
     exit;
 }
 
-// Récupère les notations
 $stmt = $pdo->prepare("SELECT * FROM notation WHERE id_article = :id");
 $stmt->execute(['id' => $id]);
 $notations = $stmt->fetchAll();
 
-// Traitement du formulaire de notation
 $confirmation_avis = null;
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['note'], $_POST['avis']) && isset($_SESSION['utilisateur'])) {
     $note = (int) $_POST['note'];
@@ -47,7 +43,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['note'], $_POST['avis'
             'avis' => $avis
         ]);
         $confirmation_avis = "✅ Merci pour votre évaluation !";
-        // Recharge les notations après insertion
         $stmt = $pdo->prepare("SELECT * FROM notation WHERE id_article = :id");
         $stmt->execute(['id' => $id]);
         $notations = $stmt->fetchAll();
@@ -121,7 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['note'], $_POST['avis'
 
     .fournisseur-btn {
         display: inline-block;
-        background:  #d38cad);
+        background: #d38cad;
         color: black;
         font-weight: 500;
         padding: 10px 16px;
@@ -131,7 +126,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['note'], $_POST['avis'
     }
 
     .fournisseur-btn:hover {
-        background: #c07699);
+        background: #c07699;
     }
 </style>
 
@@ -163,7 +158,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['note'], $_POST['avis'
     <?php endif; ?>
 
     <?php if (isset($_SESSION['utilisateur'])): ?>
-        <!-- Formulaire pour ajouter au panier -->
         <form class="add-to-cart-form" data-id="<?= $article['id_article'] ?>">
             <button type="submit">Ajouter au panier 🛒</button>
         </form>
@@ -210,7 +204,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['note'], $_POST['avis'
 
     <?php if (!empty($article['id_fournisseur'])): ?>
         <p style="margin-top: 30px;">
-            <a href="fournisseurs.php?id=<?= $article['id_fournisseur'] ?>" class="fournisseur-btn">
+            <a href="fournisseurs.php?id=<?= $article['id_fournisseur'] ?>&produit_id=<?= $article['id_article'] ?>" class="fournisseur-btn">
                 🏢 Voir le fournisseur
             </a>
         </p>
