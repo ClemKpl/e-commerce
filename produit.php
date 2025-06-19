@@ -118,6 +118,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['note'], $_POST['avis'
         background-color: #ddd;
         cursor: not-allowed;
     }
+
+    .fournisseur-btn {
+        display: inline-block;
+        background: linear-gradient(to right, #d38cad, #e9bcd3);
+        color: #fff;
+        font-weight: 500;
+        padding: 10px 16px;
+        border-radius: 8px;
+        text-decoration: none;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        transition: background 0.3s ease;
+    }
+
+    .fournisseur-btn:hover {
+        background: linear-gradient(to right, #c07699, #dba8c8);
+    }
 </style>
 
 <div class="produit">
@@ -195,13 +211,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['note'], $_POST['avis'
 
     <?php if (!empty($article['id_fournisseur'])): ?>
         <p style="margin-top: 30px;">
-            <a href="fournisseurs.php?id=<?= $article['id_fournisseur'] ?>">
-                <button style="background-color:#cce5ff;border:none;padding:10px 16px;border-radius:6px;color:#004085;font-weight:500;cursor:pointer;">
-                    Voir le fournisseur
-                </button>
+            <a href="fournisseurs.php?id=<?= $article['id_fournisseur'] ?>" class="fournisseur-btn">
+                🏢 Voir le fournisseur
             </a>
         </p>
-        <?php endif; ?>
+    <?php endif; ?>
+
     <p style="margin-top: 30px;">
         <a href="categories.php?categorie=<?= $article['id_categorie'] ?>">← Retour à la catégorie</a>
     </p>
