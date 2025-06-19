@@ -3,7 +3,7 @@ session_start();
 $pdo = new PDO("mysql:host=10.96.16.82;dbname=magasin;charset=utf8", "colin", "");
 require_once('header.php');
 
-// Vérifie que la catégorie est bien définie
+// Vérifie que la catégorie est bien spécifiée
 if (!isset($_GET['categorie']) || !is_numeric($_GET['categorie'])) {
     echo "<p>Catégorie non spécifiée.</p>";
     require_once('footer.php');
@@ -13,22 +13,24 @@ if (!isset($_GET['categorie']) || !is_numeric($_GET['categorie'])) {
 $categorie_id = (int) $_GET['categorie'];
 $tri = $_GET['tri'] ?? null;
 
-// Requête de base avec jointure sur les notations
+// Requête SQL : articles + note moyenne
 $sql = "
-    SELECT a.*, AVG(n.note) AS moyenne_note
+    SELECT 
+        a.*,
+        AVG(n.note) AS moyenne_note
     FROM articles a
     LEFT JOIN notation n ON a.id_article = n.id_article
     WHERE a.id_categorie = :categorie
     GROUP BY a.id_article
 ";
 
-// Appliquer le tri selon le paramètre
+// Tri selon paramètre
 if ($tri === 'meilleure_note') {
-    $sql .= " ORDER BY moyenne_note DESC NULLS LAST";
+    $sql .= " ORDER BY moyenne_note DESC";
 } elseif ($tri === 'pire_note') {
-    $sql .= " ORDER BY moyenne_note ASC NULLS LAST";
+    $sql .= " ORDER BY moyenne_note ASC";
 } else {
-    $sql .= " ORDER BY a.id_article DESC";
+    $sql .= " ORDER BY a.produit ASC";
 }
 
 $stmt = $pdo->prepare($sql);
@@ -37,37 +39,45 @@ $articles = $stmt->fetchAll();
 ?>
 
 <style>
-    .tri-buttons {
-        display: flex;
-        gap: 10px;
-        margin: 20px 0;
-    }
-
-    .tri-buttons a {
-        background-color: #e9bcd3;
-        padding: 10px 14px;
-        border-radius: 8px;
-        text-decoration: none;
-        color: #333;
-        font-weight: 500;
-        transition: background 0.3s;
-    }
-
-    .tri-buttons a:hover {
-        background-color: #d7a8c2;
-    }
-
-    .produit-card {
-        background: #fff;
-        border-radius: 12px;
-        padding: 20px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-        margin-bottom: 20px;
-    }
-
-    .produit-card h3 {
-        margin-top: 0;
-    }
+.tri-buttons {
+    display: flex;
+    gap: 10px;
+    margin: 20px 0;
+}
+.tri-buttons a {
+    background-color: #e9bcd3;
+    padding: 10px 14px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+    transition: background 0.3s;
+}
+.tri-buttons a:hover {
+    background-color: #d7a8c2;
+}
+.produit-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+.produit-card h3 {
+    margin-top: 0;
+    font-size: 1.2em;
+}
+.produit-card p {
+    margin: 8px 0;
+    color: #555;
+}
+.produit-card a {
+    color: #d38cad;
+    text-decoration: none;
+}
+.produit-card a:hover {
+    text-decoration: underline;
+}
 </style>
 
 <div class="container">
@@ -79,7 +89,7 @@ $articles = $stmt->fetchAll();
         <a href="?categorie=<?= $categorie_id ?>">📄 Par défaut</a>
     </div>
 
-    <?php if (empty($articles)): ?>
+    <?php if (!$articles): ?>
         <p>Aucun produit trouvé dans cette catégorie.</p>
     <?php else: ?>
         <?php foreach ($articles as $article): ?>
@@ -92,7 +102,7 @@ $articles = $stmt->fetchAll();
                     <p><em>Pas encore noté</em></p>
                 <?php endif; ?>
                 <p>
-                    <a href="produit.php?id=<?= $article['id_article'] ?>" style="color: #d38cad;">Voir le produit →</a>
+                    <a href="produit.php?id=<?= $article['id_article'] ?>">Voir le produit →</a>
                 </p>
             </div>
         <?php endforeach; ?>
