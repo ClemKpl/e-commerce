@@ -39,7 +39,7 @@ if (!$fournisseur) {
     .fournisseur-container h1 {
         font-size: 28px;
         margin-bottom: 15px;
-        color: #d38cad;
+        color:rgb(0, 0, 0);
     }
 
     .fournisseur-container p {
@@ -49,7 +49,7 @@ if (!$fournisseur) {
     }
 
     .fournisseur-container strong {
-        color:rgb(0, 0, 0);
+        color: #cc6fa3;
     }
 
     .back-link {
