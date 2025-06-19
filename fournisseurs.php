@@ -44,12 +44,17 @@ if (!$fournisseur) {
         margin-bottom: 10px;
     }
 
-    .back-link {
+    .product-link {
         margin-top: 20px;
         display: inline-block;
-        color: #8051a3;
-        text-decoration: underline;
+        color: #e9bcd3;
+        text-decoration: none;
+        font-weight: bold;
         font-size: 15px;
+    }
+
+    .product-link:hover {
+        text-decoration: underline;
     }
 </style>
 
@@ -61,7 +66,7 @@ if (!$fournisseur) {
         <?= htmlspecialchars($fournisseur['description'] ?? 'Ce fournisseur ne dispose pas encore de description.') ?>
     </p>
 
-    <a class="back-link" href="index.php">← Retour à l'accueil</a>
+    <a class="product-link" href="produit.php">← Retour aux produits</a>
 </div>
 
 <?php require_once('footer.php'); ?>
