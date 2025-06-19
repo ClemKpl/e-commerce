@@ -97,6 +97,15 @@ if (!empty($panier)) {
     <!-- Message si le panier est vide -->
     <p>Votre panier est vide.</p>
 <?php else: ?>
+    <a href="panier.php?acheter=1" style="
+        display:inline-block;
+        background-color: #27ae60;
+        color:white;
+        padding: 10px 15px;
+        border-radius: 5px;
+        text-decoration: none;
+        margin-bottom: 20px;
+    ">🛍️ Acheter</a>
     <table style="width:100%; border-collapse: collapse; margin-bottom: 30px;">
         <thead>
             <tr style="background-color: #ecf0f1;">
