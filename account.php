@@ -26,25 +26,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'login') {
     }
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'register') {
-    $nom = trim($_POST['nom'] ?? '');
-    $email = trim($_POST['email'] ?? '');
-
-    if ($nom && $email) {
-        $stmt = $pdo->prepare("SELECT COUNT(*) FROM clients WHERE email = :email");
-        $stmt->execute(['email' => $email]);
-        if ($stmt->fetchColumn() > 0) {
-            $erreurInscription = "Cet email est déjà utilisé.";
-        } else {
-            $stmt = $pdo->prepare("INSERT INTO clients (nom, email) VALUES (:nom, :email)");
-            $stmt->execute(['nom' => $nom, 'email' => $email]);
-            $successInscription = "Compte créé avec succès ! Connectez-vous.";
-        }
-    } else {
-        $erreurInscription = "Veuillez remplir tous les champs.";
-    }
-}
-
 if (isset($_GET['logout'])) {
     unset($_SESSION['utilisateur']);
     header("Location: account.php");
@@ -53,7 +34,6 @@ if (isset($_GET['logout'])) {
 ?>
 
 <style>
-
     .account-container {
         max-width: 700px;
         margin: 40px auto;
@@ -72,24 +52,19 @@ if (isset($_GET['logout'])) {
         width: 40%;
         text-align: right;
     }
-
-
     .commandes table {
         width: 100%;
         border-collapse: collapse;
         margin-top: 10px;
     }
-
     .commandes th, .commandes td {
         padding: 10px;
         border-bottom: 1px solid #ccc;
         text-align: left;
     }
-
     .commandes th {
         background: #eee;
     }
-
     .toggle-details {
         cursor: pointer;
         color: #e9bcd3;
@@ -97,7 +72,6 @@ if (isset($_GET['logout'])) {
         user-select: none;
         margin-left: 5px;
     }
-
     .details {
         display: none;
         background: #f1f1f1;
@@ -105,11 +79,9 @@ if (isset($_GET['logout'])) {
         padding: 10px;
         border-radius: 6px;
     }
-
     .article-item {
         padding: 5px 0;
     }
-
     .rotate {
         transform: rotate(90deg);
     }
@@ -137,7 +109,6 @@ if (isset($_GET['logout'])) {
                 foreach ($commandes as $commande):
                     $idCommande = $commande['id_commande'];
 
-                    // Récupération des articles liés
                     $stmtArt = $pdo->prepare("
                         SELECT a.produit, a.prix 
                         FROM articles_commandes ac
@@ -187,18 +158,7 @@ if (isset($_GET['logout'])) {
             <button type="submit">Se connecter</button>
         </form>
 
-        <h2>Créer un compte</h2>
-        <?php if (isset($erreurInscription)): ?>
-            <p class="error-message"><?= $erreurInscription ?></p>
-        <?php elseif (isset($successInscription)): ?>
-            <p class="success-message"><?= $successInscription ?></p>
-        <?php endif; ?>
-        <form method="post">
-            <input type="hidden" name="action" value="register">
-            <label>Nom : <input type="text" name="nom" required></label>
-            <label>Email : <input type="email" name="email" required></label>
-            <button type="submit">Créer mon compte</button>
-        </form>
+        <p>Pas encore de compte ? <a href="create-account.php">Rejoignez-nous, créez un compte</a>.</p>
     <?php endif; ?>
 </div>
 
