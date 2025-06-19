@@ -42,70 +42,134 @@ if (isset($_GET['logout'])) {
         border-radius: 12px;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
     }
-    .commandes td:nth-child(1) {
-        width: 20%;
-    }
-    .commandes td:nth-child(2) {
-        width: 40%;
-    }
-    .commandes td:nth-child(3) {
-        width: 40%;
-        text-align: right;
+
+    form {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        margin-top: 15px;
     }
 
-    .commandes table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 10px;
+    label {
+        display: flex;
+        flex-direction: column;
+        font-weight: bold;
     }
 
-    .commandes th, .commandes td {
-        padding: 10px;
-        border-bottom: 1px solid #ccc;
-        text-align: left;
-    }
-
-    .commandes th {
-        background: #eee;
-    }
-
-    .toggle-details {
-        cursor: pointer;
-        color: #e9bcd3;
-        font-size: 18px;
-        user-select: none;
-        margin-left: 5px;
-    }
-
-    .details {
-        display: none;
-        background: #f1f1f1;
-        margin-top: 5px;
-        padding: 10px;
+    input[type="email"], input[type="password"] {
+        padding: 8px;
+        border: 1px solid #ccc;
         border-radius: 6px;
     }
 
-    .article-item {
-        padding: 5px 0;
+    button {
+        padding: 10px;
+        background-color: #e9bcd3;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
     }
 
-    .rotate {
-        transform: rotate(90deg);
+    button:hover {
+        background-color: #d7a8c2;
+    }
+
+    .error-message {
+        color: red;
+        margin-top: 10px;
+        font-weight: bold;
     }
 
     .create-account-link {
+        margin-top: 20px;
         text-align: right;
-        margin-top: 10px;
     }
 
     .create-account-link a {
         color: #e9bcd3;
         text-decoration: none;
         font-weight: bold;
+        transition: text-decoration 0.3s ease;
     }
 
     .create-account-link a:hover {
         text-decoration: underline;
+    }
+
+    .welcome-text {
+        font-size: 1.1em;
+        margin-bottom: 10px;
+    }
+
+    .logout-link {
+        margin-bottom: 25px;
+        display: inline-block;
+        color: #e9bcd3;
+        font-weight: bold;
+        text-decoration: none;
+        transition: text-decoration 0.3s ease;
+    }
+
+    .logout-link:hover {
+        text-decoration: underline;
+    }
+
+    /* Commandes styling */
+    .commandes h3 {
+        margin-bottom: 15px;
+        font-weight: bold;
+        color: #333;
+    }
+
+    .commande-block {
+        margin-bottom: 20px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 8px;
+    }
+
+    th, td {
+        padding: 10px;
+        border-bottom: 1px solid #ccc;
+        text-align: left;
+    }
+
+    th {
+        background: #eee;
+    }
+
+    .toggle-details {
+        cursor: pointer;
+        color: #e9bcd3;
+        font-weight: bold;
+        user-select: none;
+        display: inline-block;
+        margin-bottom: 5px;
+        transition: color 0.3s ease;
+    }
+
+    .toggle-details:hover {
+        color: #d39ac5;
+    }
+
+    .details {
+        display: none;
+        background: #f9f1f7;
+        padding: 10px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+
+    .article-item {
+        padding: 4px 0;
+        font-style: italic;
+        color: #555;
     }
 </style>
 
@@ -113,12 +177,13 @@ if (isset($_GET['logout'])) {
     <h1>🧍 Mon compte</h1>
 
     <?php if (isset($_SESSION['utilisateur'])): ?>
-        <p>Bienvenue, <strong><?= htmlspecialchars($_SESSION['utilisateur']['nom']) ?></strong>
+        <p class="welcome-text">
+            Bienvenue, <strong><?= htmlspecialchars($_SESSION['utilisateur']['nom']) ?></strong>
             <?php if (!empty($_SESSION['utilisateur']['admin'])): ?>
                 <span style="color: #e9bcd3;">(admin)</span>
             <?php endif; ?>
         </p>
-        <p><a href="account.php?logout=1">Se déconnecter</a></p>
+        <a href="account.php?logout=1" class="logout-link">Se déconnecter</a>
 
         <div class="commandes">
             <h3>📦 Mes commandes</h3>
@@ -148,22 +213,19 @@ if (isset($_GET['logout'])) {
                                 <td><?= htmlspecialchars($commande['statut_livraison']) ?></td>
                             </tr>
                         </table>
-                        <div>
-                            <span class="toggle-details" onclick="toggleDetails(this)">▶ Voir les articles</span>
-                            <div class="details">
-                                <?php if ($articles): ?>
-                                    <?php foreach ($articles as $article): ?>
-                                        <div class="article-item">
-                                            🛍️ <?= htmlspecialchars($article['produit']) ?> — <?= number_format($article['prix'], 2) ?> €
-                                        </div>
-                                    <?php endforeach; ?>
-                                <?php else: ?>
-                                    <div>Aucun article trouvé pour cette commande.</div>
-                                <?php endif; ?>
-                            </div>
+                        <span class="toggle-details" onclick="toggleDetails(this)">▶ Voir les articles</span>
+                        <div class="details">
+                            <?php if ($articles): ?>
+                                <?php foreach ($articles as $article): ?>
+                                    <div class="article-item">
+                                        🛍️ <?= htmlspecialchars($article['produit']) ?> — <?= number_format($article['prix'], 2) ?> €
+                                    </div>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <div>Aucun article trouvé pour cette commande.</div>
+                            <?php endif; ?>
                         </div>
                     </div>
-                    <hr>
                 <?php endforeach;
             else: ?>
                 <p>Vous n'avez encore passé aucune commande.</p>
@@ -172,11 +234,17 @@ if (isset($_GET['logout'])) {
 
     <?php else: ?>
         <h2>Connexion</h2>
-        <?php if (isset($erreur)): ?><p class="error-message"><?= $erreur ?></p><?php endif; ?>
+        <?php if (isset($erreur)): ?>
+            <p class="error-message"><?= $erreur ?></p>
+        <?php endif; ?>
         <form method="post">
             <input type="hidden" name="action" value="login">
-            <label>Email : <input type="email" name="email" required></label>
-            <label>Mot de passe : <input type="password" name="mdp" required placeholder="Tapez votre nom"></label>
+            <label>Email :
+                <input type="email" name="email" required>
+            </label>
+            <label>Mot de passe :
+                <input type="password" name="mdp" required placeholder="Tapez votre nom">
+            </label>
             <button type="submit">Se connecter</button>
         </form>
 
@@ -189,8 +257,9 @@ if (isset($_GET['logout'])) {
 <script>
 function toggleDetails(elem) {
     const details = elem.nextElementSibling;
-    details.style.display = details.style.display === 'block' ? 'none' : 'block';
-    elem.textContent = details.style.display === 'block' ? '▼ Masquer les articles' : '▶ Voir les articles';
+    const isVisible = details.style.display === 'block';
+    details.style.display = isVisible ? 'none' : 'block';
+    elem.textContent = isVisible ? '▶ Voir les articles' : '▼ Masquer les articles';
 }
 </script>
 
