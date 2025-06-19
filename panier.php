@@ -60,7 +60,7 @@ if (isset($_GET['acheter'])) {
     $_SESSION['achat_validé'] = true;
 
     header("Location : panier.php");
-    exit
+    exit;
 }
 
 // Initialisation du total et du tableau d'articles
