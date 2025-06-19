@@ -10,6 +10,7 @@ if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
 }
 
 $id_fournisseur = (int) $_GET['id'];
+$id_produit = $_GET['produit_id'] ?? null;
 
 // Récupération du fournisseur
 $stmt = $pdo->prepare("SELECT * FROM fournisseurs WHERE id_fournisseur = :id");
@@ -44,17 +45,13 @@ if (!$fournisseur) {
         margin-bottom: 10px;
     }
 
-    .product-link {
+    .back-link {
         margin-top: 20px;
         display: inline-block;
-        color: #e9bcd3;
-        text-decoration: none;
-        font-weight: bold;
-        font-size: 15px;
-    }
-
-    .product-link:hover {
+        color: #8051a3;
         text-decoration: underline;
+        font-size: 15px;
+        cursor: pointer;
     }
 </style>
 
@@ -66,7 +63,11 @@ if (!$fournisseur) {
         <?= htmlspecialchars($fournisseur['description'] ?? 'Ce fournisseur ne dispose pas encore de description.') ?>
     </p>
 
-    <a class="product-link" href="produit.php">← Retour aux produits</a>
+    <?php if ($id_produit): ?>
+        <a class="back-link" href="produit.php?id=<?= urlencode($id_produit) ?>">← Retour au produit</a>
+    <?php else: ?>
+        <a class="back-link" href="produit.php">← Retour aux produits</a>
+    <?php endif; ?>
 </div>
 
 <?php require_once('footer.php'); ?>
