@@ -195,7 +195,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['note'], $_POST['avis'
 
     <?php if (!empty($article['id_fournisseur'])): ?>
         <p style="margin-top: 30px;">
-            <a href="fournisseur.php?id=<?= $article['id_fournisseur'] ?>">
+            <a href="fournisseurs.php?id=<?= $article['id_fournisseur'] ?>">
                 <button style="background-color:#cce5ff;border:none;padding:10px 16px;border-radius:6px;color:#004085;font-weight:500;cursor:pointer;">
                     Voir le fournisseur
                 </button>
