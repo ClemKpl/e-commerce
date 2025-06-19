@@ -180,8 +180,8 @@ if (isset($_GET['logout'])) {
             <button type="submit">Se connecter</button>
         </form>
 
-        <div class="create-account-link">
-            <a href="create-account.php">Pas encore de compte ? Créez-en un</a>
+        <div class="create_account-link">
+            <a href="create_account.php">Pas encore de compte ? Créez-en un</a>
         </div>
     <?php endif; ?>
 </div>
