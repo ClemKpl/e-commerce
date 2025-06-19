@@ -10,6 +10,7 @@ if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
 }
 
 $id_fournisseur = (int) $_GET['id'];
+$id_produit = $_GET['produit_id'] ?? null;
 
 // Récupération du fournisseur
 $stmt = $pdo->prepare("SELECT * FROM fournisseurs WHERE id_fournisseur = :id");
@@ -27,33 +28,42 @@ if (!$fournisseur) {
     .fournisseur-container {
         max-width: 700px;
         margin: 40px auto;
-        background: #fff;
+        background: #fff0f7;
         padding: 30px;
-        border-radius: 12px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+        border-radius: 16px;
+        box-shadow: 0 6px 12px rgba(211, 140, 173, 0.15);
         font-family: 'Segoe UI', sans-serif;
+        color: #5a2a4f;
     }
 
     .fournisseur-container h1 {
         font-size: 28px;
-        margin-bottom: 10px;
+        margin-bottom: 15px;
+        color: #d38cad;
     }
 
     .fournisseur-container p {
         font-size: 16px;
-        margin-bottom: 10px;
+        margin-bottom: 12px;
+        line-height: 1.6;
     }
 
-    .product-link {
-        margin-top: 20px;
+    .fournisseur-container strong {
+        color: #cc6fa3;
+    }
+
+    .back-link {
+        margin-top: 25px;
         display: inline-block;
-        color: #e9bcd3;
+        color: #cc6fa3;
         text-decoration: none;
         font-weight: bold;
         font-size: 15px;
+        transition: color 0.2s ease;
     }
 
-    .product-link:hover {
+    .back-link:hover {
+        color: #a64f7b;
         text-decoration: underline;
     }
 </style>
@@ -66,7 +76,11 @@ if (!$fournisseur) {
         <?= htmlspecialchars($fournisseur['description'] ?? 'Ce fournisseur ne dispose pas encore de description.') ?>
     </p>
 
-    <a class="product-link" href="produit.php">← Retour aux produits</a>
+    <?php if ($id_produit): ?>
+        <a class="back-link" href="produit.php?id=<?= urlencode($id_produit) ?>">← Retour au produit</a>
+    <?php else: ?>
+        <a class="back-link" href="produit.php">← Retour aux produits</a>
+    <?php endif; ?>
 </div>
 
 <?php require_once('footer.php'); ?>

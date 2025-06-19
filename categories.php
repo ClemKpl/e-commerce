@@ -25,6 +25,32 @@ if (!empty($articles)) {
         $notations[$id][] = $note;
     }
 }
+
+// Calcul des notes moyennes
+$notes_moyennes = [];
+foreach ($articles as $article) {
+    $id = $article['id_article'];
+    if (isset($notations[$id])) {
+        $notes = array_column($notations[$id], 'note');
+        $moyenne = array_sum($notes) / count($notes);
+    } else {
+        $moyenne = 0;
+    }
+    $notes_moyennes[$id] = $moyenne;
+}
+
+// Tri selon le paramètre tri dans l'URL
+if (isset($_GET['tri'])) {
+    if ($_GET['tri'] === 'meilleure') {
+        usort($articles, function($a, $b) use ($notes_moyennes) {
+            return $notes_moyennes[$b['id_article']] <=> $notes_moyennes[$a['id_article']];
+        });
+    } elseif ($_GET['tri'] === 'pire') {
+        usort($articles, function($a, $b) use ($notes_moyennes) {
+            return $notes_moyennes[$a['id_article']] <=> $notes_moyennes[$b['id_article']];
+        });
+    }
+}
 ?>
 
 <style>
@@ -54,6 +80,29 @@ if (!empty($articles)) {
 
     .categories a:hover {
         background-color: #e9bcd3;
+    }
+
+    .sorting {
+        margin-bottom: 20px;
+        font-size: 1.2em;
+    }
+
+    .sorting a {
+        cursor: pointer;
+        text-decoration: none;
+        color: #d38cad;
+        margin-right: 15px;
+        font-weight: 700;
+        transition: color 0.3s ease;
+    }
+
+    .sorting a:hover {
+        color: #b05684;
+    }
+
+    .sorting .active {
+        color: #a03060;
+        text-decoration: underline;
     }
 
     .article {
@@ -133,6 +182,12 @@ if (!empty($articles)) {
     <?php if (count($articles) === 0): ?>
         <p>Aucun article dans cette catégorie.</p>
     <?php else: ?>
+        <!-- Boutons de tri sous forme de flèches -->
+        <div class="sorting">
+            <a href="?categorie=<?= $categorieId ?>&tri=meilleure" class="<?= (isset($_GET['tri']) && $_GET['tri'] === 'meilleure') ? 'active' : '' ?>" title="Trier par meilleure note">↑ Meilleure note</a>
+            <a href="?categorie=<?= $categorieId ?>&tri=pire" class="<?= (isset($_GET['tri']) && $_GET['tri'] === 'pire') ? 'active' : '' ?>" title="Trier par pire note">↓ Pire note</a>
+        </div>
+
         <?php foreach ($articles as $article): ?>
             <div class="article">
                 <strong>
