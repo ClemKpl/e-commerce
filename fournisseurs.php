@@ -49,7 +49,7 @@ if (!$fournisseur) {
     }
 
     .fournisseur-container strong {
-        color: #cc6fa3;
+        color:rgb(0, 0, 0);
     }
 
     .back-link {
