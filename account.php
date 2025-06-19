@@ -52,19 +52,23 @@ if (isset($_GET['logout'])) {
         width: 40%;
         text-align: right;
     }
+
     .commandes table {
         width: 100%;
         border-collapse: collapse;
         margin-top: 10px;
     }
+
     .commandes th, .commandes td {
         padding: 10px;
         border-bottom: 1px solid #ccc;
         text-align: left;
     }
+
     .commandes th {
         background: #eee;
     }
+
     .toggle-details {
         cursor: pointer;
         color: #e9bcd3;
@@ -72,6 +76,7 @@ if (isset($_GET['logout'])) {
         user-select: none;
         margin-left: 5px;
     }
+
     .details {
         display: none;
         background: #f1f1f1;
@@ -79,11 +84,28 @@ if (isset($_GET['logout'])) {
         padding: 10px;
         border-radius: 6px;
     }
+
     .article-item {
         padding: 5px 0;
     }
+
     .rotate {
         transform: rotate(90deg);
+    }
+
+    .create-account-link {
+        text-align: right;
+        margin-top: 10px;
+    }
+
+    .create-account-link a {
+        color: #e9bcd3;
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    .create-account-link a:hover {
+        text-decoration: underline;
     }
 </style>
 
@@ -158,7 +180,9 @@ if (isset($_GET['logout'])) {
             <button type="submit">Se connecter</button>
         </form>
 
-        <p>Pas encore de compte ? <a href="create-account.php">Rejoignez-nous, créez un compte</a>.</p>
+        <div class="create-account-link">
+            <a href="create-account.php">Pas encore de compte ? Créez-en un</a>
+        </div>
     <?php endif; ?>
 </div>
 
