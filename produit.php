@@ -121,18 +121,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['note'], $_POST['avis'
 
     .fournisseur-btn {
         display: inline-block;
-        background: linear-gradient(to right, #d38cad, #e9bcd3);
-        color: #fff;
+        background:  #d38cad);
+        color: black;
         font-weight: 500;
         padding: 10px 16px;
         border-radius: 8px;
         text-decoration: none;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         transition: background 0.3s ease;
     }
 
     .fournisseur-btn:hover {
-        background: linear-gradient(to right, #c07699, #dba8c8);
+        background: #c07699);
     }
 </style>
 
