@@ -75,8 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     .create-account-link {
-        text-align: right;
-        margin-top: 10px;
+        margin-top: 20px;
     }
 
     .create-account-link a {
