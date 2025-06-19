@@ -39,7 +39,7 @@ if (!$fournisseur) {
     .fournisseur-container h1 {
         font-size: 28px;
         margin-bottom: 15px;
-        color: #d38cad;
+        color:rgb(0, 0, 0);
     }
 
     .fournisseur-container p {
