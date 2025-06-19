@@ -28,30 +28,43 @@ if (!$fournisseur) {
     .fournisseur-container {
         max-width: 700px;
         margin: 40px auto;
-        background: #fff;
+        background: #fff0f7;
         padding: 30px;
-        border-radius: 12px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+        border-radius: 16px;
+        box-shadow: 0 6px 12px rgba(211, 140, 173, 0.15);
         font-family: 'Segoe UI', sans-serif;
+        color: #5a2a4f;
     }
 
     .fournisseur-container h1 {
         font-size: 28px;
-        margin-bottom: 10px;
+        margin-bottom: 15px;
+        color: #d38cad;
     }
 
     .fournisseur-container p {
         font-size: 16px;
-        margin-bottom: 10px;
+        margin-bottom: 12px;
+        line-height: 1.6;
+    }
+
+    .fournisseur-container strong {
+        color: #cc6fa3;
     }
 
     .back-link {
-        margin-top: 20px;
+        margin-top: 25px;
         display: inline-block;
-        color: #8051a3;
-        text-decoration: underline;
+        color: #cc6fa3;
+        text-decoration: none;
+        font-weight: bold;
         font-size: 15px;
-        cursor: pointer;
+        transition: color 0.2s ease;
+    }
+
+    .back-link:hover {
+        color: #a64f7b;
+        text-decoration: underline;
     }
 </style>
 
