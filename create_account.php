@@ -74,8 +74,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         color: green;
     }
 
-    .back-link {
-        margin-top: 20px;
+    .create-account-link {
+        text-align: right;
+        margin-top: 10px;
+    }
+
+    .create-account-link a {
+        color: #e9bcd3;
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    .create-account-link a:hover {
+        text-decoration: underline;
     }
 </style>
 
@@ -100,10 +111,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </form>
     <?php endif; ?>
 
-    <div class="back-link">
+    <div class="create-account-link">
         🔙 <a href="account.php">Retour à la connexion</a>
     </div>
 </div>
 
 <?php require_once('footer.php'); ?>
-
