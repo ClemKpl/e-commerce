@@ -26,25 +26,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'login') {
     }
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'register') {
-    $nom = trim($_POST['nom'] ?? '');
-    $email = trim($_POST['email'] ?? '');
-
-    if ($nom && $email) {
-        $stmt = $pdo->prepare("SELECT COUNT(*) FROM clients WHERE email = :email");
-        $stmt->execute(['email' => $email]);
-        if ($stmt->fetchColumn() > 0) {
-            $erreurInscription = "Cet email est déjà utilisé.";
-        } else {
-            $stmt = $pdo->prepare("INSERT INTO clients (nom, email) VALUES (:nom, :email)");
-            $stmt->execute(['nom' => $nom, 'email' => $email]);
-            $successInscription = "Compte créé avec succès ! Connectez-vous.";
-        }
-    } else {
-        $erreurInscription = "Veuillez remplir tous les champs.";
-    }
-}
-
 if (isset($_GET['logout'])) {
     unset($_SESSION['utilisateur']);
     header("Location: account.php");
@@ -53,7 +34,6 @@ if (isset($_GET['logout'])) {
 ?>
 
 <style>
-
     .account-container {
         max-width: 700px;
         margin: 40px auto;
@@ -72,7 +52,6 @@ if (isset($_GET['logout'])) {
         width: 40%;
         text-align: right;
     }
-
 
     .commandes table {
         width: 100%;
@@ -113,6 +92,21 @@ if (isset($_GET['logout'])) {
     .rotate {
         transform: rotate(90deg);
     }
+
+    .create-account-link {
+        text-align: right;
+        margin-top: 10px;
+    }
+
+    .create-account-link a {
+        color: #e9bcd3;
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    .create-account-link a:hover {
+        text-decoration: underline;
+    }
 </style>
 
 <div class="account-container">
@@ -137,7 +131,6 @@ if (isset($_GET['logout'])) {
                 foreach ($commandes as $commande):
                     $idCommande = $commande['id_commande'];
 
-                    // Récupération des articles liés
                     $stmtArt = $pdo->prepare("
                         SELECT a.produit, a.prix 
                         FROM articles_commandes ac
@@ -187,18 +180,9 @@ if (isset($_GET['logout'])) {
             <button type="submit">Se connecter</button>
         </form>
 
-        <h2>Créer un compte</h2>
-        <?php if (isset($erreurInscription)): ?>
-            <p class="error-message"><?= $erreurInscription ?></p>
-        <?php elseif (isset($successInscription)): ?>
-            <p class="success-message"><?= $successInscription ?></p>
-        <?php endif; ?>
-        <form method="post">
-            <input type="hidden" name="action" value="register">
-            <label>Nom : <input type="text" name="nom" required></label>
-            <label>Email : <input type="email" name="email" required></label>
-            <button type="submit">Créer mon compte</button>
-        </form>
+        <div class="create-account-link">
+            <a href="create_account.php">Pas encore de compte ? Créez-en un</a>
+        </div>
     <?php endif; ?>
 </div>
 
