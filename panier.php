@@ -50,6 +50,19 @@ if (isset($_GET['vider'])) {
     exit;
 }
 
+if (isset($_GET['acheter'])) {
+    //Ici on pourrait enregistrer la commande dans la base de données
+
+    //On vide le panier après l'achat
+    unset($_SESSION['panier'][$idClient]);
+
+    //On définit un message de confirmation
+    $_SESSION['achat_validé'] = true;
+
+    header("Location : panier.php");
+    exit
+}
+
 // Initialisation du total et du tableau d'articles
 $total = 0;
 $articles = [];
@@ -66,6 +79,19 @@ if (!empty($panier)) {
 ?>
 
 <h1>🛒 Mon panier</h1>
+<?php if (isset($_SESSION['achat_validé'])): ?>
+    <div style="display:
+        padding : 15px;
+        background-color: #2ecc71;
+        color: white;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        font-weight : bold;
+    ">
+        ✅ Votre achat a été validé avec succès !
+    </div>
+    <?php unset($_SESSION['achat_validé']); ?>
+<?php endif; ?>
 
 <?php if (empty($articles)): ?>
     <!-- Message si le panier est vide -->

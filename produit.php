@@ -116,7 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['note'], $_POST['avis'
 
     .fournisseur-btn {
         display: inline-block;
-        background: #d38cad;
+        background:rgb(255, 217, 235);
         color: black;
         font-weight: 500;
         padding: 10px 16px;
@@ -126,7 +126,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['note'], $_POST['avis'
     }
 
     .fournisseur-btn:hover {
-        background: #c07699;
+        background:rgb(255, 174, 212);
     }
 </style>
 
